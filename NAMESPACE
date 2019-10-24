@@ -1,0 +1,22 @@
+import(methods)
+import(grid)
+importFrom(grImport2, grid.symbols, readPicture)
+importFrom(linbin, events, crop_events, event_gaps, event_overlaps, as_events, seq_events)
+importFrom(grDevices, dev.off, pdf)
+importFrom(stats, aggregate, complete.cases, na.omit)
+importFrom(utils, head, read.table, write.csv, capture.output)
+importFrom(readxl, read_excel)
+
+
+export(plot.strata,
+    strata,
+    summary.strata,
+    read.LAS)
+
+exportClasses(
+    strata
+)
+
+S3method(summary, strata)
+S3method(print, summary.strata)
+S3method(plot, strata)
