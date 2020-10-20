@@ -28,8 +28,8 @@ to explore stratigraphic information quantitatively (e.g., summarizing it by lit
 \author{ John Ortiz }
 \examples{
 
-data(saltarin)
-saltarin_val <- strata(saltarin, datum="top")
+data(saltarin_beds)
+saltarin_val <- strata(saltarin_beds, datum="top")
 summary(saltarin_val)
 summary(saltarin_val, grain.size=TRUE)
 }

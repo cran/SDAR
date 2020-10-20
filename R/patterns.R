@@ -16,189 +16,275 @@ gridPts <- function(xExp, yExp, from, to, xP, yP) {
   xyTd <- nTd[which(inpolygon(nTd$x, nTd$y, xP, yP, boundary = F) == TRUE),]
   return(list(xyT, xyTa, xyTb, xyTc, xyTd))
 }
-## Claystone N 620
-clayP <- function(xP, yP, from, to, fill, sc.fac, ...) {
-  yExp <- 0.25 * sc.fac
-  pMed <- abs(to - from) / 2
-  yPt <- sort(unique(c(pMed + from + seq(0, pMed, yExp), 
-		   pMed + from - seq(0, pMed, yExp))))
-  yCord <- yPt[yPt > from & yPt < to]
-  difY <-   (yCord[2] - yCord[1]) / 2
-  tmpyCord <- c(yCord[1] - difY, yCord + difY)
-  yCord2 <- tmpyCord[tmpyCord > from & tmpyCord < to]
-  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), 
-    default.units="native")
-    if(length(yCord) != 0) {
-      grid.polyline(x=c(rep(0, length(yCord)), rep(max(xP) - 0.03, length(yCord))),
-        y=c(yCord, yCord), id=rep(1:length(yCord), 2),
-	    default.units = "native", gp=gpar(lty="81888188", lwd=0.7))
-    }
-    if(length(yCord2) != 0) {
-      grid.polyline(x=c(rep(0, length(yCord2)), rep(max(xP) - 0.02, length(yCord2))),
-        y=c(yCord2, yCord2), id=rep(1:length(yCord2), 2),
-        default.units = "native", gp=gpar(lty="68818881", lwd=0.7))
-    }
+##
+is.even <- function(x) x %% 2 == 0
+
+## Claystone pattern
+clayP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <-  0.009
+  yExp <- 0.15 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2]) 
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      s_e <- c(1, 7, 15, 21, 29, 35, 43, 49, 57, 63, 71)
+      xf <- df_s[nrow(df_s), 1]
+      yf <- df_s[nrow(df_s), 2]
+      n_df_s <- nrow(df_s) %% 14
+      if(is.even(which(j == dy_i))){
+        for(i in s_e) {
+          grid.segments(df_s[i, 1], df_s[i, 2], 
+            df_s[i+5, 1], df_s[i+5, 2],
+            default.units="native", gp=gpar(lwd=0.25))
+        }
+        if(n_df_s >= 2 & n_df_s < 6){
+          ind_p <-  nrow(df_s) %/% 14 * 14
+          grid.segments(df_s[ind_p + 1, 1], df_s[ind_p + 1, 2], 
+            xf, yf, default.units="native", gp=gpar(lwd=0.25))
+        }
+        if(n_df_s > 6 & n_df_s < 12){
+          ind_p <-  nrow(df_s) %/% 14 * 14
+          grid.segments(df_s[ind_p + 7, 1], df_s[ind_p + 7, 2], 
+            xf, yf, default.units="native", gp=gpar(lwd=0.25))
+        }
+      }else{
+        s_e <- s_e + 4
+        for(i in s_e) {
+          grid.segments(df_s[i, 1], df_s[i, 2], 
+            df_s[i+5, 1], df_s[i+5, 2], 
+            default.units="native", gp=gpar(lwd=0.25))
+        }
+        grid.segments(df_s[1, 1], df_s[1, 2], 
+          df_s[2, 1], df_s[2, 2],
+          default.units="native", gp=gpar(lwd=0.25)) 
+        if(n_df_s - 4 >= 2 & n_df_s - 4 < 6){
+          ind_p <-  nrow(df_s) %/% 14 * 14 + 4
+          grid.segments(df_s[ind_p + 1, 1], df_s[ind_p + 1, 2], 
+            xf, yf, default.units="native", gp=gpar(lwd=0.25))
+        }
+        if((nrow(df_s) - 4) %% 14 > 6 & (nrow(df_s) - 4) %% 14 < 12){
+          ind_p <-  (nrow(df_s) - 4) %/% 14 * 14
+          grid.segments(df_s[ind_p + 11, 1], df_s[ind_p + 11, 2], 
+            xf, yf, default.units="native", gp=gpar(lwd=0.25))
+        }
+      }
+    }   
+  }
 }
 ## Mudstone pattern
-mudP <- function(xP, yP, from, to, fill, sc.fac, datum, ...) {
-  yExp <- 0.275 * sc.fac
-  pMed <- abs(to - from) / 2
-  yPt <- sort(unique(c(pMed + from + seq(0, pMed, yExp), 
-		   pMed + from - seq(0, pMed, yExp))))
-  yCord <- yPt[yPt > from & yPt < to]
-  difY <-   (yCord[2] - yCord[1]) / 2
-  tmpyCord <- c(yCord[1] - difY, yCord + difY)
-  yCord2 <- tmpyCord[tmpyCord > from & tmpyCord < to]
+mudP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <- 0.0052
+  yExp <- 0.2 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
   grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), 
     default.units="native")
-  if(length(yCord) != 0) {
-    grid.polyline(x=c(rep(0, length(yCord)), rep(max(xP) - 0.03, length(yCord))),
-      y=c(yCord, yCord), id=rep(1:length(yCord), 2),
-	  default.units = "native", gp=gpar(lty="81818828", lwd=0.7))
-   }
-   if(length(yCord2) != 0) {
-     grid.polyline(x=c(rep(0, length(yCord2)), rep(max(xP) - 0.02, length(yCord2))),
-       y=c(yCord2, yCord2), id=rep(1:length(yCord2), 2),
-       default.units = "native", gp=gpar(lty="88288181", lwd=0.7))
-   }
-}
-# Silstone pattern
-siltP <- function(xP, yP, from, to, fill, pSize, sc.fac, datum, ...) {
-  xExp <- 0.18
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2]) 
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      s_e <- seq(1, nrow(df_s), 5)
+      ind <- s_e[c(4, 8, 12, 16, 20)]
+      s_e <- s_e[!s_e %in% ind]
+      n_df_s <- nrow(df_s) %/% 5 + 1
+      s_o <- seq(3, nrow(df_s), 5)
+      ind_o <- s_o[c(2, 6, 10, 14, 18)]
+      s_o <- s_o[!s_o %in% ind_o]
+      if(is.even(which(j == dy_i))){
+        for(i in s_e) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i+4, 1], df_s[i+4, 2],
+            gp=gpar(lwd=0.35), default.units="native")
+        }
+        for(i in ind) {
+          grid.points(df_s[i + 2, 1], df_s[i + 2, 2], 
+            size = unit(0.3, "mm"), pch=16, default.units="native")
+        } 
+        if(nrow(df_s) - max(s_e) >= 2 & (nrow(df_s) - max(s_e) < 5)){
+          grid.segments(df_s[max(s_e), 1], df_s[max(s_e), 2], df_s[nrow(df_s), 1], 
+            df_s[nrow(df_s), 2], gp=gpar(lwd=0.35), default.units="native")
+        }
+      }else{
+        for(i in s_o) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i+4, 1], df_s[i+4, 2], 
+            gp=gpar(lwd=0.35), default.units="native")
+        }
+        for(i in ind_o) {
+          grid.points(df_s[i + 2, 1], df_s[i + 2, 2], 
+            size = unit(0.3, "mm"), pch=16, default.units="native")
+        }
+        if(nrow(df_s) - max(s_o) >=1 & (nrow(df_s) - max(s_o) < 5)){
+          grid.segments(df_s[max(s_o), 1], df_s[max(s_o), 2], df_s[nrow(df_s), 1], 
+            df_s[nrow(df_s), 2], gp=gpar(lwd=0.35), default.units="native")
+        }
+      } 
+    }
+  }
+}  
+## Siltstone pattern
+siltP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <- 0.019
   yExp <- 0.2 * sc.fac
-  pMed <- abs(to-from)/2
-  xGrid <- seq(0.02, 1, xExp)
-  lengthLine <- 0.08
-  nT <- expand.grid(x=xGrid, 
-          y=sort(unique(c(pMed + from + seq(0, pMed, yExp), 
-		  pMed + from - seq(0, pMed, yExp)))))
-  xP2 <- c(nT$x, ifelse(gl(2,length(xGrid),nrow(nT)) == 1, 
-	       nT$x - lengthLine, nT$x + lengthLine))
-  yP2 <- c(nT$y, nT$y)
-  xyP2 <- data.frame(xP2, yP2, id=rep(2:(nrow(nT) + 1), 4))
-  inxyPt <- xyP2[which(inpolygon(xyP2$xP2, xyP2$yP2, xP, yP, boundary = F) == T),]
-  inxyP2 <- data.frame(table(inxyPt$id))
-  inxyPt2 <- inxyP2[which(inxyP2$Freq == 4),1]
-  xypP <- inxyPt[which(inxyPt$id %in% inxyPt2),]
-  grid.path(c(xP, xypP$xP2), c(yP, xypP$yP2),
-    id=c(rep(1,length(xP)), xypP$id), 
-	gp=gpar(fill=fill, lwd=0.025),
-	default.units="native", rule="evenodd")
-  xP3 <- c(ifelse(gl(2,length(xGrid),nrow(nT)) == 1, 
-    nT$x + 0.05, nT$x - 0.05))
-  xyP3 <- data.frame(xP3=c(xP3, xP3 + 0.025, xP3 - 0.025), 
-		    yP3=c(rep(nT$y, 3)))
-  xypP2 <- xyP3[which(inpolygon(xyP3$xP3, xyP3$yP3, xP, yP, boundary = F) == T),]
-  if(nrow(xypP2) != 0) {
-  	grid.points(xypP2$xP3, xypP2$yP3,
-  	  default.units="native", size = unit(0.5, "mm"), pch=16)
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), 
+    default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2]) 
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      s_e <- seq(3, nrow(df_s), 8)
+      n_df_s <- nrow(df_s) %/% 8 + 1
+      s_o <- seq(7, nrow(df_s), 8)
+      if(is.even(which(j == dy_i))){
+        for(i in s_e) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i+4, 1], df_s[i+4, 2], 
+            gp=gpar(lwd=0.25), default.units="native")
+        }
+        grid.points(df_s[1:2, 1], df_s[1:2, 2], 
+          size = unit(0.6, "mm"), pch=16, default.units="native")
+          vpts <- rep.int(8:10, n_df_s)
+          ad_vpts <- sort(rep(seq(0,nrow(df_s), 8)[1:n_df_s], 3))
+          ind_pts <- vpts + ad_vpts
+        grid.points(df_s[ind_pts, 1], df_s[ind_pts, 2], 
+          size = unit(0.6, "mm"), pch=16, default.units="native")
+        if(nrow(df_s) - max(s_e) >= 2 & (nrow(df_s) - max(s_e) < 5)){
+          grid.segments(df_s[max(s_e), 1], df_s[max(s_e), 2], 
+            df_s[nrow(df_s), 1], df_s[nrow(df_s), 2],
+            gp=gpar(lwd=0.25), default.units="native")
+        }
+      }else{
+        for(i in s_o) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i+4, 1], df_s[i+4, 2],
+            gp=gpar(lwd=0.25), default.units="native")
+        }
+        grid.segments(df_s[1, 1], df_s[1, 2], df_s[3, 1], df_s[3, 2], 
+          gp=gpar(lwd=0.25), default.units="native") 
+          vpts <- rep.int(4:6, n_df_s)
+          ad_vpts <- sort(rep(seq(0,nrow(df_s), 8)[1:n_df_s], 3))
+          ind_pts <- vpts + ad_vpts
+        grid.points(df_s[ind_pts, 1], df_s[ind_pts, 2], 
+          size = unit(0.5, "mm"), pch=16, default.units="native")
+        if(nrow(df_s) - max(s_o) >=1 & (nrow(df_s) - max(s_o) < 5)){
+          grid.segments(df_s[max(s_o), 1], df_s[max(s_o), 2], 
+            df_s[nrow(df_s), 1], df_s[nrow(df_s), 2], 
+            gp=gpar(lwd=0.25), default.units="native")
+        }
+      }
+    }
   }
 }
 ## Shale pattern
-shaleP <-  function(xP, yP, from, to, fill, sc.fac, datum, ...) {
-  yExp <- 0.25 * sc.fac
-  xExp <- 0.05
-  pMed <- abs(to-from)/2
-  xGrid <- seq(0, 1, xExp)
-  line <- 0.05
-  nT <- expand.grid(x=xGrid, 
-   	      y=sort(unique(c(pMed + yExp/2 + from + seq(0, pMed, yExp), 
-		  pMed + from - seq(0, pMed, yExp) - yExp/2))))
-  xP2 <- nT$x + (line * 2)
-  xP3 <- nT$x + line-(line / 2)
-  yP4 <- ifelse(gl(2,1,nrow(nT)) == 1, 
-  	       nT$y + yExp, nT$y - yExp)
-  xyP2 <- data.frame(x=c(nT$x, xP2, rep(xP3, 3)), 
-            y=c(rep(nT$y, 3), yP4, nT$y),
-   		    id=c(rep(2:(length(xP2)+1), 5)))
-  inxyPt <- xyP2[which(inpolygon(xyP2$x, xyP2$y, xP, yP, boundary = T) == T),]
-  inxyP2 <- data.frame(table(inxyPt$id))
-  inxyPt2 <- inxyP2[which(inxyP2$Freq >= 4),1]
-  xypP <- inxyPt[which(inxyPt$id %in% inxyPt2),]
-  grid.path(c(xP, xypP$x), c(yP, xypP$y),
-	id=c(rep(1,length(xP)), xypP$id), gp=gpar(fill=fill, lwd=0.05),
-	default.units="native", rule="evenodd")
-}
-# New Sandstone pattern
-sandP <- function(xP, yP, from, to, fill, sc.fac, pSize, datum) {
-  xExp <- 0.035 
-  yExp <- 0.275 * sc.fac
+shaleP <-  function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <- 0.025 / 0.9
+  yExp <- 0.15 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2]) 
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]  
+      if(!is.even(which(j == dy_i))){
+        s_e <- seq(1, nrow(df_s), 3)
+        for(i in s_e) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i+2, 1], df_s[i+2, 2], 
+            default.units="native", gp=gpar(lwd=0.25))
+        }
+        if(nrow(df_s) - max(s_e) == 1){
+          grid.segments(df_s[max(s_e), 1], df_s[max(s_e), 2], 
+            df_s[nrow(df_s), 1], df_s[nrow(df_s), 2], 
+            gp=gpar(lwd=0.25), default.units="native")
+        }
+      }else{
+        s_o <- seq(2, nrow(df_s), 3)
+        for(i in s_o) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i+2, 1], df_s[i+2, 2], 
+            gp=gpar(lwd=0.25), default.units="native")
+        }
+        if(nrow(df_s) - max(s_o) == 1){
+          grid.segments(df_s[max(s_o), 1], df_s[max(s_o), 2], 
+            df_s[nrow(df_s), 1], df_s[nrow(df_s), 2], 
+            gp=gpar(lwd=0.25), default.units="native")
+        }
+      }
+    }
+  }
+}  
+## Sandstone pattern
+sandP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize) {
+  xExp <- 0.05 
+  yExp <- 0.425 * sc.fac
   lsPt <- gridPts(xExp, yExp, from, to, xP, yP) 
   grnT <- rbind(lsPt[[4]], lsPt[[2]], lsPt[[3]])
   grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
-  if(nrow(grnT) != 0) {
-    grid.points(grnT$x, grnT$y, default.units="native", 
-	  size = unit(0.3, "mm"), pch=16)
-  }
-  if(nrow(lsPt[[5]]) != 0) {
-    grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 == 0], 
-	  lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 == 0],
-	  default.units="native", size = unit(0.3, "mm"), pch=16)
-    grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 != 0], 
-	  lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 != 0],
-	  default.units="native", size = unit(0.3, "mm"), pch=16)
-  }
-  if(nrow(lsPt[[1]]) != 0) {
-    grid.points(lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0], 
-      lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0],
-	  default.units="native", size = unit(0.3, "mm"), pch=16)
-    grid.points(lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0] - 0.025, 
-      unit(lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0], "native") + unit(0.175, "mm"),
-      default.units="native", size = unit(0.3, "mm"), pch=16)
-    grid.points(lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0] - 0.05, 
-      unit(lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0], "native") - unit(0.35, "mm"),
-      default.units="native", size = unit(0.3, "mm"), pch=16)
+  if(isTRUE(fill.pattern)) {
+    if(nrow(grnT) != 0) {
+      grid.points(grnT$x, grnT$y, default.units="native", 
+	    size = unit(0.4 * pSize, "mm"), pch=16)
+    }
+    if(nrow(lsPt[[5]]) != 0) {
+      grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 == 0], 
+	    lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 == 0],
+	    default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+      grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 != 0], 
+	    lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 != 0],
+	    default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+    }
+    if(nrow(lsPt[[1]]) != 0) {
+      ypM <- lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0]
+      xpM <- lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0]
+      grid.points(xpM, ypM,
+	      default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+      grid.points(xpM - 0.025, 
+        unit(ypM, "native") + unit(0.175, "mm"),
+        default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+      grid.points(xpM - 0.05,  
+        unit(ypM, "native") - unit(0.35, "mm"),
+        default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+    }
   }
 }
 ## Conglomerate pattern
-congP <- function(xP, yP, from, to, fill, sc.fac, pSize, datum) {
-  xExp <- 0.04 
-  yExp <- 0.3 * sc.fac
-  adjustLwd <- function(gp) {
-    gp$lwd <- 0.25
-    gp$col <- "grey20"
-    gp
-  }
+congP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize) {
+  xExp <- 0.05 
+  yExp <- 0.5 * sc.fac
   lsPt <- gridPts(xExp, yExp, from, to, xP, yP) 
-  grnT <- rbind(lsPt[[2]], lsPt[[3]], lsPt[[4]])
-  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.25), default.units="native")
-  if(nrow(grnT) != 0) {
-    grid.symbols(SDAR.sym[["pat.sym"]][["conglomerate.svg"]], grnT$x, grnT$y, default.units="native", 
-	  size = unit(pSize * 5 * 1.75, "mm"),
-	  gpFUN=adjustLwd)
+  grnT <- rbind(lsPt[[4]], lsPt[[2]], lsPt[[3]])
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    if(nrow(grnT) != 0) {
+      grid.points(grnT$x, grnT$y, default.units="native", 
+      size = unit(0.5, "mm"), pch=1)
     }
-  if(nrow(lsPt[[5]]) != 0) {
-    grid.symbols(SDAR.sym[["pat.sym"]][["conglomerate.svg"]], 
-      lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 == 0], 
-	  lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 == 0],
-	  default.units="native", size = unit(pSize * 10 * 1.75, "mm"),
-	  gpFUN=adjustLwd)
-    grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 != 0], 
-	  lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 != 0],
-	  default.units="native", size = unit(0.5, "mm"), pch=16)
-  }
-  if(nrow(lsPt[[1]]) != 0) {
-    grid.symbols(SDAR.sym[["pat.sym"]][["conglomerate.svg"]], 
-      lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0], 
-	  lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0],
-	  default.units="native", size = unit(pSize * 7 * 1.75, "mm"),
-	  gpFUN=adjustLwd)
-    grid.symbols(SDAR.sym[["pat.sym"]][["conglomerate.svg"]], 
-      lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0] - 0.025, 
-	  unit(lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0], "native") + unit(0.175, "mm"),
-	  default.units="native", size = unit(pSize * 3 * 1.75, "mm"),
-	  gpFUN=adjustLwd)
-    grid.symbols(SDAR.sym[["pat.sym"]][["conglomerate.svg"]], 
-      lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0] - 0.05, 
-	  unit(lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0], "native") - unit(0.35, "mm"),
-	  default.units="native", size = unit(pSize * 3.5 * 1.75, "mm"),
-	  gpFUN=adjustLwd)
+    if(nrow(lsPt[[5]]) != 0) {
+      grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 == 0], 
+        lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 == 0],
+        default.units="native", size = unit(1.4, "mm"), pch=1)
+      grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 != 0], 
+        lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 != 0],
+        default.units="native", size = unit(0.3, "mm"), pch=16)
+    }
+    if(nrow(lsPt[[1]]) != 0) {
+      ypM <- lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0]
+      xpM <- lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0]
+      grid.points(xpM, ypM,
+        default.units="native", size = unit(1.3, "mm"), pch=1)
+      grid.points(xpM - 0.025, 
+        unit(ypM, "native") + unit(0.175, "mm"),
+        default.units="native", size = unit(0.4, "mm"), pch=16)
+      grid.points(xpM - 0.05, 
+        unit(ypM, "native") - unit(0.35, "mm"),
+        default.units="native", size = unit(0.3, "mm"), pch=16)
+    }
   }
 }
 ## Breccia pattern
-brecP <- function(xP, yP, from, to, fill, sc.fac, pSize, datum) {
+brecP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize) {
   xExp <- 0.05 
-  yExp <- 0.4 * sc.fac
+  yExp <- 0.6 * sc.fac
   lsPt <- gridPts(xExp, yExp, from, to, xP, yP) 
   grnT <- rbind(lsPt[[2]], lsPt[[4]])
   adjustLwd <- function(gp) {
@@ -207,171 +293,784 @@ brecP <- function(xP, yP, from, to, fill, sc.fac, pSize, datum) {
     gp
   }
   grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.25), default.units="native")
-  if(nrow(grnT) != 0) {
-    grid.points(grnT$x, grnT$y, default.units="native", 
-	  size = unit(pSize * 1, "mm"))
-  }
-  if(nrow(lsPt[[1]]) != 0) {
-    grid.points(lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 == 0], 
- 	  lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 == 0], 
- 	  default.units="native", size = unit(pSize * 1.25, "mm"))
-    grid.symbols(SDAR.sym[["pat.sym"]][["breccia_7.svg"]], 
-      lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0], 
-	  lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0],
-	  default.units="native", size = unit(pSize * 3.5 * 1.5, "mm"),
-	  gpFUN=adjustLwd)
-  }
-  if(nrow(lsPt[[5]]) != 0) {
-    grid.symbols(SDAR.sym[["pat.sym"]][["breccia_3.svg"]],
-      lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 == 0], 
-	  lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 == 0],
-	  default.units="native", size = unit(pSize * 4.5 * 1.5, "mm"),
-	  gpFUN=adjustLwd) 
-    grid.symbols(SDAR.sym[["pat.sym"]][["breccia_4.svg"]], 
-      lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 != 0], 
-	  lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 != 0],
-	  default.units="native", size = unit(pSize * 5 * 1.5, "mm"),
-	  gpFUN=adjustLwd)
-  }
-  if(nrow(lsPt[[3]]) != 0) {
-    grid.symbols(SDAR.sym[["pat.sym"]][["breccia_5.svg"]],
-      lsPt[[3]]$x[as.numeric(row.names(lsPt[[3]])) %% 2 == 0], 
-	  lsPt[[3]]$y[as.numeric(row.names(lsPt[[3]])) %% 2 == 0],
-	  default.units="native", size = unit(pSize * 4 * 1.5, "mm"),
-	  gpFUN=adjustLwd)	      
+  if(isTRUE(fill.pattern)) {
+    if(nrow(grnT) != 0) {
+      grid.points(grnT$x, grnT$y, default.units="native", 
+	    size = unit(pSize * 1, "mm"))
+    }
+    if(nrow(lsPt[[1]]) != 0) {
+      grid.points(lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 == 0], 
+ 	      lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 == 0], 
+ 	      default.units="native", size = unit(pSize * 1.25, "mm"))
+      grid.symbols(SDAR.sym[["pat.sym"]][["breccia_7.svg"]], 
+        lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0], 
+	      lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0],
+	      default.units="native", size = unit(pSize * 3.5 * 1.5, "mm"),
+	      gpFUN=adjustLwd)
+    }
+    if(nrow(lsPt[[5]]) != 0) {
+      grid.symbols(SDAR.sym[["pat.sym"]][["breccia_3.svg"]],
+        lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 == 0], 
+	      lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 == 0],
+	      default.units="native", size = unit(pSize * 4.5 * 1.5, "mm"),
+	      gpFUN=adjustLwd) 
+      grid.symbols(SDAR.sym[["pat.sym"]][["breccia_4.svg"]], 
+        lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 != 0], 
+	      lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 != 0],
+	      default.units="native", size = unit(pSize * 5 * 1.5, "mm"),
+	      gpFUN=adjustLwd)
+    }
+    if(nrow(lsPt[[3]]) != 0) {
+      grid.symbols(SDAR.sym[["pat.sym"]][["breccia_5.svg"]],
+        lsPt[[3]]$x[as.numeric(row.names(lsPt[[3]])) %% 2 == 0], 
+	      lsPt[[3]]$y[as.numeric(row.names(lsPt[[3]])) %% 2 == 0],
+	      default.units="native", size = unit(pSize * 4 * 1.5, "mm"),
+	      gpFUN=adjustLwd)	      
+    }
   }
 }
 ## Limestone pattern
-limeP <-  function(xP, yP, from, to, fill, sc.fac, datum, ...) {
-  yExp <- 0.15 * sc.fac
-  xExp <- 0.05
-  pMed <- abs(to-from)/2
-  xGrid=seq(0, 1, xExp)
-  line <- 0.075
-  nT <- expand.grid(x=xGrid, 
-    	  y=sort(unique(c(pMed + yExp/2 + from + seq(0, pMed, yExp), 
-		  pMed + from - seq(0, pMed, yExp) - yExp/2))))
-  xP2 <- nT$x + (line * 2)
-  xP3 <- nT$x + line-(line / 2)
-  yP4 <- ifelse(gl(2,1,nrow(nT)) == 1, 
-    	   nT$y + yExp, nT$y - yExp)
-  xyP2 <- data.frame(x=c(nT$x, xP2, rep(xP3, 3)), 
-            y=c(rep(nT$y, 3), yP4, nT$y),
-   		    id=c(rep(2:(length(xP2)+1), 5)))
-  inxyPt <- xyP2[which(inpolygon(xyP2$x, xyP2$y, xP, yP, boundary = T) == T),]
-  inxyP2 <- data.frame(table(inxyPt$id))
-  inxyPt2 <- inxyP2[which(inxyP2$Freq >= 4),1]
-  xypP <- inxyPt[which(inxyPt$id %in% inxyPt2),]
-  grid.path(c(xP, xypP$x), c(yP, xypP$y),
-    id=c(rep(1,length(xP)), xypP$id), gp=gpar(fill=fill, lwd=0.015),
-	default.units="native", rule="evenodd")
+limeP <-  function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <- 0.025
+  yExp <- 0.25 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2])
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      s_e <- seq(1, nrow(df_s), 6)
+      grid.segments(df_s[1, 1] - xExp, df_s[1, 2], 
+        df_s[nrow(df_s), 1], df_s[nrow(df_s), 2],
+        gp=gpar(lwd=0.25), default.units="native")
+        if(is.even(which(j == dy_i))){
+        for(i in s_e) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i, 1], df_s[i, 2] - yExp,
+            gp=gpar(lwd=0.25), default.units="native")
+        }  
+      }else{
+        for(i in s_e) {
+          grid.segments(df_s[i+3, 1], df_s[i+3, 2], df_s[i+3, 1], 
+            df_s[i+3, 2] - ifelse(j != dy_i[1], yExp, 0),
+            gp=gpar(lwd=0.25), default.units="native")
+          if(j == dy_i[1]) {
+            grid.segments(df_s[i+3, 1], df_s[i+3, 2], df_s[i+3, 1], yP[1],
+            gp=gpar(lwd=0.25), default.units="native")
+          }
+          if(j == dy_i[length(dy_i)]) {
+            grid.segments(df_s[i, 1], df_s[i, 2], df_s[i, 1], yP[2],
+              gp=gpar(lwd=0.25), default.units="native")
+          }
+        }
+      }
+    } 
+  }
 }
 ## Dolomite pattern
-dolP <- function(xP, yP, from, to, fill, sc.fac, datum, ...) {
-  yExp <- 0.45 * sc.fac
-  pMed <- abs(to - from) / 2
-  yPt <- sort(unique(c(pMed + yExp/2 + from + seq(0, pMed, yExp), 
-    pMed + from - seq(0, pMed, yExp) - yExp/2)))
-  yCord <- yPt[yPt > from & yPt < to]
-  difY <- (yCord[2] - yCord[1]) / 2
-  tmpyCord <- c(yCord[1] - difY, yCord + difY)
-  yCord2 <- tmpyCord[tmpyCord > from & tmpyCord < to]
-  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.03), 
-    default.units="native")
-  if(length(yCord) != 0) {
-    grid.polyline(x=c(rep(0, length(yCord)), rep(max(xP) - 0.03, length(yCord))),
-      y=c(yCord, yCord), id=rep(1:length(yCord), 2),
-	  default.units = "native", gp=gpar(lty=1, lwd=0.7))
+dolP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <- 0.025
+  yExp <- 0.25 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2])
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      s_e <- seq(1, nrow(df_s), 6)
+      grid.segments(df_s[1, 1] - xExp, df_s[1, 2], df_s[nrow(df_s), 1], df_s[nrow(df_s), 2],
+        gp=gpar(lwd=0.25), default.units="native")
+      if(is.even(which(j == dy_i))){
+        for(i in s_e) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i, 1] - xExp, df_s[i, 2] - yExp,
+            gp=gpar(lwd=0.25), default.units="native")
+        }  
+      }else{
+        for(i in s_e) {
+          grid.segments(df_s[i+3, 1], df_s[i+3, 2], df_s[i+3, 1] - xExp, 
+            df_s[i+3, 2] - ifelse(j != dy_i[1], yExp, 0),
+            gp=gpar(lwd=0.25), default.units="native")
+          if(j == dy_i[1]) {
+            grid.segments(df_s[i+3, 1] + (xExp /2), df_s[i+3, 2], df_s[i+3, 1], yP[1],
+            gp=gpar(lwd=0.25), default.units="native")
+          }
+          if(j == dy_i[length(dy_i)]) {
+            grid.segments(df_s[i, 1] - (xExp /2), df_s[i, 2], df_s[i, 1], yP[2],
+              gp=gpar(lwd=0.25), default.units="native")
+          }
+        }
+      }
+    } 
   }
-  if(length(yCord2) != 0) {
-    grid.polyline(x=c(rep(0, length(yCord2)), rep(max(xP) - 0.02, length(yCord2))),
-      y=c(yCord2, yCord2), id=rep(1:length(yCord2), 2),
-      default.units = "native", gp=gpar(lty=1, lwd=0.7))
-  }
-  yExp <- 0.47 * sc.fac
-  xExp <- 0.15
-  pSize <- 0.1
-  if(length(yCord) != 0) {
-    nT <- expand.grid(x=seq(0.05, 0.99, xExp) + xExp/2, 
-	   	    y= yCord + yExp/4)
-    inxyPt <- nT[which(inpolygon(nT$x, nT$y, xP, yP, boundary = T) == T),]
-    grid.points(inxyPt$x, inxyPt$y, pch="/", 
-	  size = unit((pSize) * sc.fac, "native"))
-  }
-  if(length(yCord) != 0) {
-    nT2 <- expand.grid(x=seq(0.05, 0.99, xExp), 
-	   	     y= yCord2 + yExp/4)
-    inxyPt2 <- nT2[which(inpolygon(nT2$x, nT2$y, xP, yP, boundary = T) == T),]
-    grid.points(inxyPt2$x, inxyPt2$y, pch="/", 
-	  size = unit((pSize) * sc.fac, "native"))
-  }
-}
+} 
 ## Coal pattern
-coalP <- function(xP, yP, from, to, fill, datum, ...) {
-    grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.15), 
-      default.units="native")
-  }
-
-## chert pattern
+coalP <- function(xP, yP, from, to, fill, sc.fac, ...) {
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.15), 
+    default.units="native")
+}
 ## chalk pattern
+chalkP <-  function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <- 0.035
+  yExp <- 0.2 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2]) 
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]  
+      if(!is.even(which(j == dy_i))){
+        s_e <- seq(1, nrow(df_s), 3)
+        for(i in s_e) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i+2, 1], df_s[i+2, 2], 
+            default.units="native", gp=gpar(lwd=0.25))
+          grid.segments(df_s[i+1, 1] - xExp/2, df_s[i+1, 2], 
+            df_s[i+1, 1] - xExp/2, df_s[i+1, 2] + yExp/2,
+            gp=gpar(lwd=0.25), default.units="native")
+        }
+        if(nrow(df_s) - max(s_e) == 1){
+          grid.segments(df_s[max(s_e), 1], df_s[max(s_e), 2], 
+            df_s[nrow(df_s), 1], df_s[nrow(df_s), 2], 
+            gp=gpar(lwd=0.25), default.units="native")
+        }
+      }else{
+        s_o <- seq(2, nrow(df_s), 3)
+        for(i in s_o) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i+2, 1], df_s[i+2, 2], 
+            gp=gpar(lwd=0.25), default.units="native")
+          grid.segments(df_s[i+1, 1] + xExp/2, df_s[i+1, 2], 
+            df_s[i+1, 1] + xExp/2, df_s[i+1, 2] + yExp/2,
+            gp=gpar(lwd=0.25), default.units="native")
+        }
+        if(nrow(df_s) - max(s_o) == 1){
+          grid.segments(df_s[max(s_o), 1], df_s[max(s_o), 2], 
+            df_s[nrow(df_s), 1], df_s[nrow(df_s), 2], 
+            gp=gpar(lwd=0.25), default.units="native")
+        }
+      }
+    }
+  }
+}  
 ## Phosphorite pattern
-## Siderite pattern
-## pyroclastic pattern
-pyroP <- function(xP, yP, from, to, fill, sc.fac, datum, ...) { 
+phoP <-  function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <- 0.011
+  yExp <- 0.25 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2]) 
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      s_e <- seq(1, nrow(df_s), 6)
+        for(i in s_e) {
+        grid.points(df_s[i+1, 1], df_s[i+1, 2], 
+          default.units="native", size = unit(1.8, "mm"), 
+          pch=16)
+      }
+    }
+  }
+}  
+## Diatomite pattern
+diatP <-  function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <- 0.021
+  yExp <- 0.25 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2]) 
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      s_e <- seq(1, nrow(df_s), 12)
+      if(!is.even(which(j == dy_i))){
+        for(i in s_e) {
+          grid.segments(df_s[i+2, 1], df_s[i+2, 2] + yExp/6.5, 
+            df_s[i+6, 1], df_s[i+6, 2] + yExp/6.5, 
+            gp=gpar(lwd=0.25), default.units="native")
+          grid.segments(df_s[i+2, 1], df_s[i+2, 2] - yExp/6.5, 
+            df_s[i+6, 1], df_s[i+6, 2] - yExp/6.5,
+            gp=gpar(lwd=0.25), default.units="native")
+          grid.circle(df_s[i+4, 1], df_s[i+4, 2], r=unit(0.085, "cm"),
+            default.units="native", gp=gpar(fill="beige", lwd=0.25))
+        }
+      }else{
+        for(i in s_e) {
+          grid.segments(df_s[i+8, 1], df_s[i+8, 2] + yExp/6.5, 
+            df_s[i+12, 1], df_s[i+12, 2] + yExp/6.5, 
+            gp=gpar(lwd=0.25), default.units="native")
+          grid.segments(df_s[i+8, 1], df_s[i+8, 2] - yExp/6.5, 
+            df_s[i+12, 1], df_s[i+12, 2] - yExp/6.5,
+            gp=gpar(lwd=0.25), default.units="native")
+          grid.circle(df_s[i+10, 1], df_s[i+10, 2], r=unit(0.085, "cm"),
+            default.units="native", gp=gpar(fill="beige", lwd=0.25))
+        }
+      } 
+    }
+  }
+}  
+## tuff pattern
+tufP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) { 
   pO <- 0.3 * sc.fac
   pM <- abs(to-from)/2
   xGrid=seq(0.025, 0.975, 0.1)
   nT <- expand.grid(xGrid=xGrid,
           yGrid= sort(unique(c(pM + from + seq(0, pM, pO), 
-		  pM + from - seq(0, pM, pO)))))
+		      pM + from - seq(0, pM, pO)))))
   xyP2 <- data.frame(xGrid=c(ifelse(gl(2,length(xGrid),nrow(nT)) == 1, 
    	        nT$xGrid + 0.05, nT$xGrid)), yGrid=nT$yGrid)
   inxyP <- inpolygon(xyP2$xGrid, xyP2$yGrid, xP, yP, boundary = F)
   xypP <- xyP2[which(inxyP == TRUE),]
   grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.5), 
     default.units="native")
-  grid.points(xypP$xGrid, xypP$yGrid, pch = 4, 
-    size = unit(0.02, "native"), gp=gpar(lwd=0.4))
-}
-# Igneous pattern
-ignP <- function(xP, yP, from, to, fill, sc.fac, datum, ...) { 
+  if(isTRUE(fill.pattern)) {
+    grid.points(xypP$xGrid, xypP$yGrid, pch = 4, 
+      size = unit(0.02, "native"), gp=gpar(lwd=0.4))
+  }
+}  
+## Igneous pattern
+ignP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) { 
   pO <- 0.3 * sc.fac
   pM <- abs(to-from)/2
   xGrid=seq(0.025, 0.975, 0.1)
   nT <- expand.grid(xGrid=xGrid,
 	      yGrid= sort(unique(c(pM + from + seq(0, pM, pO), 
-		  pM + from - seq(0, pM, pO)))))
+		    pM + from - seq(0, pM, pO)))))
   xyP2 <- data.frame(xGrid=c(ifelse(gl(2,length(xGrid),nrow(nT)) == 1, 
      	    nT$xGrid + 0.05, nT$xGrid)), yGrid=nT$yGrid)
   inxyP <- inpolygon(xyP2$xGrid, xyP2$yGrid, xP, yP, boundary = F)
   xypP <- xyP2[which(inxyP == TRUE),]
   grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.5), 
     default.units="native")
-  grid.points(xypP$xGrid, xypP$yGrid, pch = 3, 
-    size = unit(0.025, "native"), gp=gpar(lwd=0.4))
+  if(isTRUE(fill.pattern)) {
+    grid.points(xypP$xGrid, xypP$yGrid, pch = 3, 
+      size = unit(0.025, "native"), gp=gpar(lwd=0.4))
+  }
 }
-## Halite pattern
-haliteP <- function(xP, yP, from, to, fill, sc.fac, datum, ...) {
-  pO <- 0.25 * sc.fac
-  pM <- abs(to - from) / 2
-  yCord <- sort(unique(c(pM + from + seq(0, pM, pO), 
-             pM + from - seq(0, pM, pO))))
-  difY <-   (yCord[2] - yCord[1]) / 2
-  tmpyCord <- c(yCord[1] - difY, yCord + difY)
-  yCord2 <- tmpyCord[tmpyCord > from & tmpyCord < to]
+## Bentonite pattern
+benP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize=1, ...) { 
+  pO <- 0.3 * sc.fac
+  pM <- abs(to-from)/2
+  xGrid=seq(0.025, 0.975, 0.1)
+  nT <- expand.grid(xGrid=xGrid,
+        yGrid= sort(unique(c(pM + from + seq(0, pM, pO), 
+        pM + from - seq(0, pM, pO)))))
+  xyP2 <- data.frame(xGrid=c(ifelse(gl(2,length(xGrid),nrow(nT)) == 1, 
+          nT$xGrid + 0.05, nT$xGrid)), yGrid=nT$yGrid)
+  inxyP <- inpolygon(xyP2$xGrid, xyP2$yGrid, xP, yP, boundary = F)
+  xypP <- xyP2[which(inxyP == TRUE),]
   grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.5), 
     default.units="native")
-  grid.polyline(x=c(rep(0, length(yCord)), rep(max(xP) - 0.03, length(yCord))),
-    y=c(yCord, yCord), id=rep(1:length(yCord), 2),
-    default.units = "native", gp=gpar(lty=1, lwd=0.4))
-  grid.polyline(x=c(rep(0, length(yCord2)), rep(max(xP) - 0.02, length(yCord2))),
-    y=c(yCord2, yCord2), id=rep(1:length(yCord2), 2),
-    default.units = "native", gp=gpar(lty=1, lwd=0.4))
-  seqPts <- seq(0.05, max(xP), 0.05)
-  grid.polyline(x=c(seqPts, seqPts),
-    y=c(rep(from, length(seqPts)), rep(to, length(seqPts))), 
-    id=rep(1:length(seqPts), 2),
-    default.units = "native", gp=gpar(lty=1, lwd=0.4))
+  if(isTRUE(fill.pattern)) {
+    grid.points(xypP$xGrid + 0.011, xypP$yGrid, pch = "<", 
+      size = unit(0.0025 * pSize, "native"), gp=gpar(lwd=0.1))
+    grid.points(xypP$xGrid - 0.013, xypP$yGrid, pch = "-----", 
+      size = unit(0.035 * pSize, "native"), gp=gpar(lwd=0.3))
+  }
+}
+## Halite pattern
+haliteP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <- 0.025
+  yExp <- 0.21 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2]) 
+    dx_i <- unique(df[,1])
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      s_e <- seq(1, nrow(df_s), 6)
+        grid.segments(0, df_s[1, 2], df_s[nrow(df_s), 1], df_s[nrow(df_s), 2],
+          gp=gpar(lwd=0.25), default.units="native")
+    }
+    max_dy <- max(df$y)
+    min_dy <- min(df$y)
+    for(j in dx_i) {
+      df_s <- df[which(df$x == j),]
+        grid.segments(df_s[1, 1], ifelse(max(df_s[, 2]) == max_dy, yP[2], max(df_s[, 2])), 
+          df_s[1, 1], ifelse(min(df_s[, 2]) == min_dy, yP[1], min(df_s[, 2])),
+          gp=gpar(lwd=0.25), default.units="native")
+    }
+  }
+}  
+## Limonite pattern
+limoP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize=1, ...) { 
+  pO <- 0.3 * sc.fac
+  pM <- abs(to-from)/2
+  xGrid=seq(0.025, 0.975, 0.1)
+  nT <- expand.grid(xGrid=xGrid,
+        yGrid= sort(unique(c(pM + from + seq(0, pM, pO), 
+        pM + from - seq(0, pM, pO)))))
+  xyP2 <- data.frame(xGrid=c(ifelse(gl(2,length(xGrid),nrow(nT)) == 1, 
+          nT$xGrid + 0.05, nT$xGrid)), yGrid=nT$yGrid)
+  inxyP <- inpolygon(xyP2$xGrid, xyP2$yGrid, xP, yP, boundary = F)
+  xypP <- xyP2[which(inxyP == TRUE),]
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.5), 
+    default.units="native")
+  if(isTRUE(fill.pattern)) {
+    grid.points(xypP$xGrid, xypP$yGrid, pch = 1, 
+      size = unit(0.04 * pSize, "native"), gp=gpar(lwd=0.4))
+    grid.points(xypP$xGrid, xypP$yGrid, pch = 0, 
+      size = unit(0.015 * pSize, "native"), gp=gpar(lwd=0.4))
+  }
+}  
+## Siderite pattern
+sidP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize=1, ...) { 
+  pO <- 0.3 * sc.fac
+  pM <- abs(to-from)/2
+  xGrid=seq(0.025, 0.975, 0.1)
+  nT <- expand.grid(xGrid=xGrid,
+        yGrid= sort(unique(c(pM + from + seq(0, pM, pO), 
+      pM + from - seq(0, pM, pO)))))
+  xyP2 <- data.frame(xGrid=c(ifelse(gl(2,length(xGrid),nrow(nT)) == 1, 
+          nT$xGrid + 0.05, nT$xGrid)), yGrid=nT$yGrid)
+  inxyP <- inpolygon(xyP2$xGrid, xyP2$yGrid, xP, yP, boundary = F)
+  xypP <- xyP2[which(inxyP == TRUE),]
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.5), 
+    default.units="native")
+  if(isTRUE(fill.pattern)) {
+    grid.points(xypP$xGrid, xypP$yGrid, pch = 10, 
+      size = unit(0.035 * pSize, "native"), gp=gpar(lwd=0.4))
+  }
+}  
+## Chert pattern
+chertP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize=1, ...) { 
+  pO <- 0.3 * sc.fac
+  pM <- abs(to-from)/2
+  xGrid=seq(0.025, 0.975, 0.1)
+  nT <- expand.grid(xGrid=xGrid,
+        yGrid= sort(unique(c(pM + from + seq(0, pM, pO), 
+      pM + from - seq(0, pM, pO)))))
+  xyP2 <- data.frame(xGrid=c(ifelse(gl(2,length(xGrid),nrow(nT)) == 1, 
+          nT$xGrid + 0.05, nT$xGrid)), yGrid=nT$yGrid)
+  inxyP <- inpolygon(xyP2$xGrid, xyP2$yGrid, xP, yP, boundary = F)
+  xypP <- xyP2[which(inxyP == TRUE),]
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.5), 
+    default.units="native")
+  if(isTRUE(fill.pattern)) {
+    grid.points(xypP$xGrid, xypP$yGrid, pch = 6, 
+      size = unit(0.03 * pSize, "native"), gp=gpar(lwd=0.2))
+  }
+}  
+## marl pattern
+marlP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize=1, ...) { 
+  pO <- 0.3 * sc.fac
+  pM <- abs(to-from)/2
+  xGrid=seq(0.025, 0.975, 0.1)
+  nT <- expand.grid(xGrid=xGrid,
+        yGrid= sort(unique(c(pM + from + seq(0, pM, pO), 
+      pM + from - seq(0, pM, pO)))))
+  xyP2 <- data.frame(xGrid=c(ifelse(gl(2,length(xGrid),nrow(nT)) == 1, 
+          nT$xGrid + 0.05, nT$xGrid)), yGrid=nT$yGrid)
+  inxyP <- inpolygon(xyP2$xGrid, xyP2$yGrid, xP, yP, boundary = F)
+  xypP <- xyP2[which(inxyP == TRUE),]
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.5), 
+    default.units="native")
+  if(isTRUE(fill.pattern)) {
+    grid.points(xypP$xGrid, xypP$yGrid, pch = "~", 
+      size = unit(0.35 * pSize, "native"), gp=gpar(lwd=0.3, cex=1.25))
+  }
+}  
+## Gypsum pattern
+gypP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize=1, ...) { 
+  pO <- 0.3 * sc.fac
+  pM <- abs(to-from)/2
+  xGrid=seq(0.025, 0.975, 0.1)
+  nT <- expand.grid(xGrid=xGrid,
+        yGrid= sort(unique(c(pM + from + seq(0, pM, pO), 
+      pM + from - seq(0, pM, pO)))))
+  xyP2 <- data.frame(xGrid=c(ifelse(gl(2,length(xGrid),nrow(nT)) == 1, 
+          nT$xGrid + 0.05, nT$xGrid)), yGrid=nT$yGrid)
+  inxyP <- inpolygon(xyP2$xGrid, xyP2$yGrid, xP, yP, boundary = F)
+  xypP <- xyP2[which(inxyP == TRUE),]
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.5), 
+    default.units="native")
+  if(isTRUE(fill.pattern)) {
+    grid.points(xypP$xGrid, xypP$yGrid, pch = ">", 
+      size = unit(0.04 * pSize, "native"), gp=gpar(lwd=0.4))
+  }
+}
+## Lapillistone
+lapP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize=1, ...) { 
+  pO <- 0.3 * sc.fac
+  pM <- abs(to-from)/2
+  xGrid=seq(0.025, 0.975, 0.1)
+  nT <- expand.grid(xGrid=xGrid,
+        yGrid= sort(unique(c(pM + from + seq(0, pM, pO), 
+      pM + from - seq(0, pM, pO)))))
+  xyP2 <- data.frame(xGrid=c(ifelse(gl(2,length(xGrid),nrow(nT)) == 1, 
+          nT$xGrid + 0.05, nT$xGrid)), yGrid=nT$yGrid)
+  inxyP <- inpolygon(xyP2$xGrid, xyP2$yGrid, xP, yP, boundary = F)
+  xypP <- xyP2[which(inxyP == TRUE),]
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.5), 
+    default.units="native")
+  if(isTRUE(fill.pattern)) {
+    grid.points(xypP$xGrid, xypP$yGrid, pch = "^", 
+      size = unit(0.04 * pSize, "native"), gp=gpar(lwd=0.4))
+  }
+}  
+## Basalt pattern
+basP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <- 0.0125
+  yExp <- 0.21 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2])
+    if(yP[2] - max(dy_i) < yExp) {
+      dy_i <- dy_i[-length(dy_i)]
+    }
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      s_e <- seq(1, nrow(df_s), 12)
+      if(is.even(which(j == dy_i))){
+        for(i in s_e) {
+          grid.segments(df_s[i+7, 1], df_s[i+7, 2], df_s[i+7, 1] + xExp, 
+            df_s[i+7, 2] + yExp/1.5,  gp=gpar(lwd=0.25), default.units="native")
+          grid.segments(df_s[i+7, 1], df_s[i+7, 2], df_s[i+7, 1] - xExp, 
+            df_s[i+7, 2] + yExp/1.5,  gp=gpar(lwd=0.25), default.units="native")
+        }
+      }else{
+        for(i in s_e) {
+          grid.segments(df_s[i+1, 1], df_s[i+1, 2], df_s[i+1, 1] + xExp, 
+            df_s[i+1, 2] + yExp/1.5,  gp=gpar(lwd=0.25), default.units="native")
+          grid.segments(df_s[i+1, 1], df_s[i+1, 2], df_s[i+1, 1] - xExp, 
+            df_s[i+1, 2] + yExp/1.5,  gp=gpar(lwd=0.25), default.units="native")
+        }
+      }
+    }
+  }
+}  
+## Metamorphic pattern
+metaP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize=1) {
+  xExp <- 0.035 
+  yExp <- 0.275 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP) 
+  grnT <- rbind(lsPt[[4]], lsPt[[2]], lsPt[[3]])
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    if(nrow(grnT) != 0) {
+      grid.points(grnT$x, grnT$y, default.units="native", 
+      size = unit(0.3 * pSize, "mm"), pch=16)
+    } 
+    if(nrow(lsPt[[5]]) != 0) {
+      grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 == 0], 
+        lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 == 0],
+        default.units="native", size = unit(0.3 * pSize, "mm"), pch=16)
+      grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 != 0], 
+        lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 != 0],
+        default.units="native", size = unit(0.3 * pSize, "mm"), pch=16)
+    }
+    if(nrow(lsPt[[1]]) != 0) {
+      ypM <- lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0]
+      xpM <- lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0]
+      grid.points(xpM, ypM,
+        default.units="native", size = unit(0.3 * pSize, "mm"), pch=16)
+      grid.points(xpM - 0.025, 
+        unit(ypM, "native") + unit(0.175, "mm"),
+        default.units="native", size = unit(0.3 * pSize, "mm"), pch=16)
+      grid.points(xpM - 0.05,  
+        unit(ypM, "native") - unit(0.35, "mm"),
+        default.units="native", size = unit(0.3 * pSize, "mm"), pch=16)
+    }
+    xExp <- 0.02
+    yExp <- 0.05 * sc.fac
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2]) 
+    if(yP[1] - min(dy_i) < yExp/2) {
+      dy_i <- dy_i[-1]
+    }
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      s_e <- seq(1, nrow(df_s), 9)
+      if(is.even(which(j == dy_i))){
+        for(i in s_e) {
+          grid.segments(df_s[i+6, 1], df_s[i+6, 2], df_s[i+6, 1] - xExp*2,
+            df_s[i+6, 2] - yExp*4, gp=gpar(lwd=1), default.units="native")
+          grid.segments(df_s[i+6, 1], df_s[i+6, 2], df_s[i+6, 1] + xExp*2,
+            df_s[i+6, 2] - yExp*4, gp=gpar(lwd=1), default.units="native")
+          grid.segments(df_s[i+8, 1], df_s[i+8, 2], df_s[i+8, 1] - xExp*2, 
+            df_s[i+8, 2] - yExp*4, gp=gpar(lwd=1), default.units="native")
+          grid.segments(df_s[i+8, 1], df_s[i+8, 2], df_s[i+8, 1] + xExp*2, 
+            df_s[i+8, 2] - yExp*4, gp=gpar(lwd=1), default.units="native")
+        }
+      }else{
+        for(i in s_e) {
+          grid.segments(df_s[i+1, 1], df_s[i+1, 2], df_s[i+1, 1] - xExp*2, 
+            df_s[i+1, 2] - yExp*4, gp=gpar(lwd=1), default.units="native")
+          grid.segments(df_s[i+1, 1], df_s[i+1, 2], df_s[i+1, 1] + xExp*2, 
+            df_s[i+1, 2] - yExp*4, gp=gpar(lwd=1), default.units="native")
+          grid.segments(df_s[i+3, 1], df_s[i+3, 2], df_s[i+3, 1] - xExp*2,
+            df_s[i+3, 2] - yExp*4, gp=gpar(lwd=1), default.units="native")
+          grid.segments(df_s[i+3, 1], df_s[i+3, 2], df_s[i+3, 1] + xExp*2,
+            df_s[i+3, 2] - yExp*4, gp=gpar(lwd=1), default.units="native")
+        }
+      }
+    }
+  }
+}
+## Interbedded Sandstone and Shale Pattern
+int_sand_shaleP <-  function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <- 0.025
+  yExp <- 0.2 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2])
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      df_sbp <- df[which(df$y == dy_i[which(j == dy_i) - 1]),]
+      s_e <- seq(1, nrow(df_s), 2)
+      s_o <- seq(2, nrow(df_s), 3)
+      if(is.even(which(j == dy_i))){
+        grid.polygon(x=c(0, 0, ifelse(nrow(df_sbp) > 0, max(df_sbp[, 1]), max(df_s[, 1])), 
+          max(df_s[, 1])), 
+          y=c(df_s[nrow(df_s), 2], df_s[nrow(df_s), 2] - yExp, 
+          max(df_s[, 2]) - yExp, max(df_s[, 2])),
+          gp=gpar(fill="grey70", lwd=0.05), default.units="native")
+          for(i in s_o) {
+            grid.segments(df_s[i, 1], df_s[i, 2] - yExp/2, df_s[i+2, 1], df_s[i, 2] - yExp/2,
+              gp=gpar(lwd=0.25), default.units="native")
+          }
+          if(nrow(df_s) - max(s_o) == 1){
+            grid.segments(df_s[max(s_o), 1], df_s[max(s_o), 2] - yExp/2, 
+              df_s[nrow(df_s), 1], df_s[nrow(df_s), 2] - yExp/2, 
+              gp=gpar(lwd=0.25), default.units="native")
+          }
+        if(j == max(dy_i) & abs(max(dy_i) - yP[2]) < yExp) {
+          grid.polygon(x=c(0, 0, max(df_s[, 1]), max(df_s[, 1])), 
+            y=c(df_s[nrow(df_s), 2], yP[2], yP[2], max(df_s[, 2])),
+            gp=gpar(fill="grey70", lwd=0.05), default.units="native")
+        }
+      }else{
+        if(abs(j - yP[1]) > yExp/2) {
+        for(i in s_e) {
+          grid.points(df_s[i, 1], df_s[i, 2] - yExp /2, 
+            size = unit(0.5, "mm"), pch=16, default.units="native")
+        } 
+      }
+      if(j == max(dy_i) & abs(max(dy_i) - yP[2]) < yExp) {
+          grid.polygon(x=c(0, 0, max(df_s[, 1]), max(df_s[, 1])), 
+            y=c(df_s[nrow(df_s), 2], yP[2], yP[2], max(df_s[, 2])),
+            gp=gpar(fill="grey70", lwd=0.05), default.units="native")
+          for(i in s_o) {
+         grid.segments(df_s[i, 1], df_s[i, 2] + abs(df_s[i, 2] - yP[2])/2, df_s[i+2, 1], 
+          df_s[i, 2] + abs(df_s[i, 2] - yP[2])/2,
+              gp=gpar(lwd=0.25), default.units="native")
+          }
+        }
+
+      }
+    }
+  }
+}
+## Interbedded Limestone and Shale Pattern
+int_lime_shaleP <-  function(xP, yP, from, to, fill, sc.fac, fill.pattern, ...) {
+  xExp <- 0.025
+  yExp <- 0.2 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill="grey40", lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2])
+    d <- seq_along(dy_i)
+    if(length(d) > 1){
+      dx <- dy_i[seq(2, max(d), by=4)]
+    }
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      df_sbp <- df[which(df$y == dy_i[which(j == dy_i) - 1]),]
+      s_e <- seq(1, nrow(df_s), 6)
+      if(is.even(which(j == dy_i))){
+        grid.polygon(x=c(0, 0, ifelse(nrow(df_sbp) > 0, max(df_sbp[, 1]), max(df_s[, 1])), 
+          max(df_s[, 1])), 
+          y=c(df_s[nrow(df_s), 2], df_s[nrow(df_s), 2] - yExp, 
+          max(df_s[, 2]) - yExp, max(df_s[, 2])),
+          gp=gpar(fill="skyblue1", lwd=0.05), default.units="native")
+        if(j %in% dx){
+          for(i in s_e) {
+            grid.segments(df_s[i, 1], df_s[i, 2], df_s[i, 1], df_s[i, 2] - yExp,
+              gp=gpar(lwd=0.25), default.units="native")
+          }
+        }else{
+          for(i in s_e) {
+            grid.segments(df_s[i+3, 1], df_s[i+3, 2], df_s[i+3, 1], df_s[i+3, 2] - yExp,
+              gp=gpar(lwd=0.25), default.units="native")
+          }
+        }  
+      }else{
+        if(abs(j - yP[1]) > yExp/2) {
+          s_o <- seq(2, nrow(df_s), 3)
+          for(i in s_o) {
+            grid.segments(df_s[i, 1], df_s[i, 2] - yExp/2, df_s[i+2, 1], df_s[i, 2] - yExp/2,
+              gp=gpar(lwd=0.25), default.units="native")
+          }
+          if(nrow(df_s) - max(s_o) == 1){
+            grid.segments(df_s[max(s_o), 1], df_s[max(s_o), 2] - yExp/2, 
+              df_s[nrow(df_s), 1], df_s[nrow(df_s), 2] - yExp/2, 
+              gp=gpar(lwd=0.25), default.units="native")
+          }
+        }
+        if(j == max(dy_i) & abs(max(dy_i) - yP[2]) < yExp) {
+          grid.polygon(x=c(0, 0, max(df_s[, 1]), max(df_s[, 1])), 
+            y=c(df_s[nrow(df_s), 2], yP[2], yP[2], max(df_s[, 2])),
+            gp=gpar(fill="skyblue1", lwd=0.05), default.units="native")
+          for(i in s_e) {
+          grid.segments(df_s[i+3, 1], df_s[i+3, 2], df_s[i+3, 1], yP[2],
+            gp=gpar(lwd=0.25), default.units="native")
+          }
+        }
+      }
+      grid.segments(0, df_s[1, 2], df_s[nrow(df_s), 1], df_s[nrow(df_s), 2], 
+        gp=gpar(lwd=0.25), default.units="native")
+    }
+  }
+}
+##
+## Calcareous Sandstone pattern
+m_sand_limeP <- function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize) {
+  xExp <- 0.05 
+  yExp <- 0.42 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP) 
+  grnT <- rbind(lsPt[[4]], lsPt[[2]], lsPt[[3]])
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    if(nrow(grnT) != 0) {
+      grid.points(grnT$x, grnT$y, default.units="native", 
+      size = unit(0.4 * pSize, "mm"), pch=16)
+    }
+    if(nrow(lsPt[[5]]) != 0) {
+      grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 == 0], 
+      lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 == 0],
+      default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+      grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 != 0], 
+      lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 != 0],
+      default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+    }
+    if(nrow(lsPt[[1]]) != 0) {
+      ypM <- lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0]
+      xpM <- lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0]
+      grid.points(xpM, ypM,
+        default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+      grid.points(xpM - 0.025, 
+        unit(ypM, "native") + unit(0.175, "mm"),
+        default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+      grid.points(xpM - 0.05,  
+        unit(ypM, "native") - unit(0.35, "mm"),
+        default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+    }
+  }
+  xExp <- 0.04
+  yExp <- 0.35 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2]) 
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]  
+      if(!is.even(which(j == dy_i))){
+        s_e <- seq(1, nrow(df_s), 4)
+        for(i in s_e) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i+3, 1], df_s[i+3, 2], 
+            default.units="native", gp=gpar(lwd=0.35))
+          grid.segments(df_s[i+1, 1] - xExp/2, df_s[i+1, 2], 
+            df_s[i+1, 1] - xExp/2, df_s[i+1, 2] + yExp/2.5,
+            gp=gpar(lwd=0.45), default.units="native")
+        }
+        if(nrow(df_s) - max(s_e) == 1){
+          grid.segments(df_s[max(s_e), 1], df_s[max(s_e), 2], 
+            df_s[nrow(df_s), 1], df_s[nrow(df_s), 2], 
+            gp=gpar(lwd=0.35), default.units="native")
+        }
+      }else{
+        s_o <- seq(2, nrow(df_s), 4)
+        for(i in s_o) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i+3, 1], df_s[i+3, 2], 
+            gp=gpar(lwd=0.35), default.units="native")
+          grid.segments(df_s[i, 1] + xExp/2, df_s[i, 2], 
+            df_s[i, 1] + xExp/2, df_s[i, 2] + yExp/2.5,
+            gp=gpar(lwd=0.45), default.units="native")
+        }
+        if(nrow(df_s) - max(s_o) == 1){
+          grid.segments(df_s[max(s_o), 1], df_s[max(s_o), 2], 
+            df_s[nrow(df_s), 1], df_s[nrow(df_s), 2], 
+            gp=gpar(lwd=0.35), default.units="native")
+        }
+      }
+    }
+  }
+}  
+## Sandy Limestone pattern
+m_lime_sandP <-  function(xP, yP, from, to, fill, sc.fac, fill.pattern, pSize, ...) {
+  xExp <- 0.025
+  yExp <- 0.25 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP)
+  grid.path(xP, yP, gp=gpar(fill=fill, lwd=0.05), default.units="native")
+  if(isTRUE(fill.pattern)) {
+    df <- as.data.frame(lsPt[[1]])
+    dy_i <- unique(df[,2])
+    for(j in dy_i) {
+      df_s <- df[which(df$y == j),]
+      s_e <- seq(1, nrow(df_s), 6)
+      grid.segments(df_s[1, 1] - xExp, df_s[1, 2], 
+        df_s[nrow(df_s), 1], df_s[nrow(df_s), 2],
+        gp=gpar(lwd=0.25), default.units="native")
+        if(is.even(which(j == dy_i))){
+        for(i in s_e) {
+          grid.segments(df_s[i, 1], df_s[i, 2], df_s[i, 1], df_s[i, 2] - yExp,
+            gp=gpar(lwd=0.25), default.units="native")
+        }  
+      }else{
+        for(i in s_e) {
+          grid.segments(df_s[i+3, 1], df_s[i+3, 2], df_s[i+3, 1], 
+            df_s[i+3, 2] - ifelse(j != dy_i[1], yExp, 0),
+            gp=gpar(lwd=0.25), default.units="native")
+          if(j == dy_i[1]) {
+            grid.segments(df_s[i+3, 1], df_s[i+3, 2], df_s[i+3, 1], yP[1],
+            gp=gpar(lwd=0.25), default.units="native")
+          }
+          if(j == dy_i[length(dy_i)]) {
+            grid.segments(df_s[i, 1], df_s[i, 2], df_s[i, 1], yP[2],
+              gp=gpar(lwd=0.25), default.units="native")
+          }
+        }
+      }
+    } 
+  xExp <- 0.05 
+  yExp <- 0.5 * sc.fac
+  lsPt <- gridPts(xExp, yExp, from, to, xP, yP) 
+  grnT <- rbind(lsPt[[4]], lsPt[[2]], lsPt[[3]])
+  if(isTRUE(fill.pattern)) {
+    if(nrow(grnT) != 0) {
+      grid.points(grnT$x, grnT$y, default.units="native", 
+      size = unit(0.4 * pSize, "mm"), pch=16)
+    }
+    if(nrow(lsPt[[5]]) != 0) {
+      grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 == 0], 
+      lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 == 0],
+      default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+      grid.points(lsPt[[5]]$x[as.numeric(row.names(lsPt[[5]])) %% 2 != 0], 
+      lsPt[[5]]$y[as.numeric(row.names(lsPt[[5]])) %% 2 != 0],
+      default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+    }
+    if(nrow(lsPt[[1]]) != 0) {
+      ypM <- lsPt[[1]]$y[as.numeric(row.names(lsPt[[1]])) %% 2 != 0]
+      xpM <- lsPt[[1]]$x[as.numeric(row.names(lsPt[[1]])) %% 2 != 0]
+      grid.points(xpM, ypM,
+        default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+      grid.points(xpM - 0.025, 
+        unit(ypM, "native") + unit(0.175, "mm"),
+        default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+      grid.points(xpM - 0.05,  
+        unit(ypM, "native") - unit(0.35, "mm"),
+        default.units="native", size = unit(0.4 * pSize, "mm"), pch=16)
+    }
+  }
+  }
 }
 ## function inpolygon from pracma library
 ## Thanks to to Hans W Borchers

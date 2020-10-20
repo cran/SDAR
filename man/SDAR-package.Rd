@@ -48,9 +48,11 @@ with their valuable ideas and helpful advice. Furthermore, I am much indebted to
 Baquero, F. Moreno, C. D Apolito, A. Cardenas, and C. Montes for their valuable critical reviews.
 Finally, I also acknowledge the R Core Team and its large group of R contributors for their hard
 work.\cr\cr
-Financial support of this research was provided by Colciencias (partly funding the master studies 
-of the main author), and Fundacion para la Promocion de la Investigacion y la Tecnologia del 
-Banco de la Republica, (Colombia).
+Financial support of this research was provided by Colciencias (partly funding the master studies
+of the main author), Fundacion para la Promocion de la Investigacion y la Tecnologia del Banco de la
+Republica, (Colombia), and the Smithsonian Tropical Research Institute, the Anders Foundation, 
+1923 Fund, and Gregory D. and Jennifer Walston Johnson.\cr\cr
+The Saltarin 1A well dataset for this analysis, was provided by Alejandro Mora of **HOCOL S.A.**
 }
 
 \references{

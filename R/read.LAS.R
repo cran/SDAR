@@ -78,9 +78,8 @@ read.LAS <- function(filePath, repl.null = FALSE, writecsv=FALSE) {
   close(conn)
   # Detect NULL value
   if(!length(tagNULL) == FALSE) {
-    xnull <- unlist(strsplit(x[tagNULL], " "))
-    ad <- xnull[xnull != ""][2]
-    nullValue <- as.numeric(unlist(strsplit(ad, "\\:"))[1])
+    xnull <- gsub(" . ", "", x[tagNULL])
+    nullValue <- as.numeric(gsub("[^0-9.,-]", "",  xnull))
     message(paste("The NULL value =", nullValue, "\n"))
   }else{
     message(paste("The NULL value was not detected\n"))
@@ -92,7 +91,7 @@ read.LAS <- function(filePath, repl.null = FALSE, writecsv=FALSE) {
   # write the las_table data to file ... in CSV format
   if(writecsv == TRUE) {
     csv_file <- paste(unlist(strsplit(filePath, "\\."))[1], mod, ".csv", sep="")
-    write.csv(las_table, file = csv_file, row.names=FALSE)
+    write.table(las_table, file = csv_file, row.names=FALSE, sep=",")
     message("*** The .csv was sucesfully created\n")
   }else{
     return(las_table)

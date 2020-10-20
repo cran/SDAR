@@ -13,7 +13,7 @@ read.LAS(filePath, repl.null = FALSE, writecsv=FALSE)
   in .LAS files are -9999, -999.25 and -9999.25.
   If this argument is set to \code{\link[base:logical]{TRUE}}, the null values will be replaced by missing values (\bold{NA}).
   }
-  \item{writecsv}{logical, default \code{\link[base:logical]{FALSE}}. If \code{\link[base:logical]{TRUE}} the data \emph{~A (ASCII Log Data)} will be saved in a CSV format. Note that the file is written to your working directory; row and column names are included. See default options of \code{\link[utils]{write.csv}} function.
+  \item{writecsv}{logical, default \code{\link[base:logical]{FALSE}}. If \code{\link[base:logical]{TRUE}} the data \emph{~A (ASCII Log Data)} will be saved in a CSV format. Note that the file is written to your working directory; row and column names are included. See default options of \code{\link[utils]{write.table}} function.
   }
 }
 \description{ 
@@ -28,13 +28,12 @@ Expect it to change.}
 \author{John Ortiz}
 \note{
 \link{read.LAS} function included in SDAR packages is not very mature yet; it is an experimental version.
-We are working on making it compatible with versions 1.2, 2.0 and 3.0 of the LAS file specification published by the \href{http://www.cwls.org/las/}{Canadian Well Logging Society}(CWLS).\cr
+We are working on making it compatible with versions 1.2, 2.0 and 3.0 of the LAS file specification published by the \href{https://www.cwls.org/products/#products-las}{Canadian Well Logging Society}(CWLS).\cr
 This is NOT a function to read LAS file formats used for Remote Sensing Data (also called LAS files); there is a package on CRAN called \CRANpkg{rlas} to read and write this format.\cr
-The source of the file '1044907529.las' Well 13-T (API: 15-003-25233) is the \href{http://www.kgs.ku.edu/}{Kansas Geological Survey website}. All Rights Reserved.
+The source of the file "saltarinST_1A_well_log.LAS" was provided by Alejandro Mora of HOCOL S.A.
 }
 \examples{
- fpath <- system.file("demo_data_entry", "1044907529.las", package = "SDAR")
- data_logs <- read.LAS(fpath, repl.null=TRUE)
- names(data_logs)
- GR_SDAR_format <- data_logs[,c(1, 4)]
-}
+ fpath <- system.file("extdata", "saltarinST_1A_well_log.LAS", package = "SDAR")
+ well_log <- read.LAS(fpath, repl.null=TRUE)
+ head(well_log)
+ }

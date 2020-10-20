@@ -1,0 +1,1668 @@
+---
+title: "SDAR data model"
+author: "John Ortiz"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{SDAR data model}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(collapse = T, comment = "#>")
+options(tibble.print_min = 4L, tibble.print_max = 4L)
+library(SDAR)
+```
+
+## SDAR data model
+
+<center>
+#### **John Ortiz <sup>1,2,3</sup>, Carlos Jaramillo <sup>1,2</sup>**
+</center>
+
+<sup>1</sup> Smithsonian Tropical Research Institute, Balboa, Ancon, Republic of Panama,
+<sup>2</sup> Corporación Geológica ARES, Bogotá, Colombia.
+<sup>3</sup> Servicio Geológico Colombiano, Bogotá, Colombia.
+
+
+>**SDAR** is a fast and consistent tool for plotting and facilitating the analysis of stratigraphic
+and sedimentological data, designed to plot detailed stratigraphic sections and to perform quantitative stratigraphic analyses.
+
+This document presents the specific types of data required by **SDAR** package. The
+representation schemes and standard formats that should be satisfied by the input data set to 
+be integrated on **SDAR** are mentioned.
+
+### Data model
+
+Many of the sedimentological, stratigraphical and paleontological features share common properties. For example,
+lithology, bioturbation, and lithostratigraphic and chronostratigraphic units are all defined over a stratigraphic range 
+(i.e., each of them has to be defined by a **base** and a **top**). Moreover, features as structural data, and geochemical and geochronological analysis, are usually collected, or correspond to a specific stratigraphic position (i.e., each of them represents a unique depth into the well log). On the other hand, other features as fossil occurrences, samples, and sedimentary structures, could be described by both, stratigraphic range, or a specific stratigraphic
+position (e.g., a fossil occurrence could be presented in a specific depth, throughout a bed, or throughout a set of beds). Therefore, a flexible data model able to store and to integrate all the previous descriptions was implemented.
+**SDAR** allows users to provide stratigraphic information in these three main types: **beds**, **intervals**
+and **punctual features**. A description and an example of each data type are provided below.
+
+**NOTE**: The SDAR project includes the development of a graphic user interface to connect this R package with a database management system; for this reason the structure of the data and headers (column names) should be followed in order to match the database structure.
+
+### **beds** (data format to integrate rock layers)
+
+A layer of rock is the fundamental unit in an Stratigraphic Columns (SC) representation. It describes the thickness, composition, and texture of a rock. In order to integrate a stratigraphic layer in **SDAR**, the information required for each layer is bed number, thickness (i.e, it is defined by a base and a top), rock type, primary lithology, and grain size. To improve communication between geoscientists, some conventions, defined by sedimentologists to draw lithology patterns, and to describe grain size and color, are implemented. Details on the information required to define a layer and the sources for the conventions implemented are provided below.
+
+*  **bed_number**: numeric; It is often useful to give to each bed, or rock unit, a number so as to facilitate later 
+   reference; begins at the stratigraphically lowest bed (<span style="color:blue">tucker2011</span>).
+*  **base** and **top**: numeric; They define the bed thickness of each layer. Overlapping is not allowed between layers.
+*  **rock_type**: string; This field must include only the values listed in **Table 1**.
+
+<center>
+#### Table 1: Rock type
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee ; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+    	   border-bottom:1px solid black; background-color:#b1ebee ;">Rock Type</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">sedimentary</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">volcaniclastic</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; ">covered</td>
+</tr>
+</table>
+</center>
+
+*  **prim_litho**: string; This field must include only the values listed in **Table 2**. Primary lithology (To draw lithologic patterns, 
+conventions suggested by the Federal Geographic Data Committee FGDC (<span style="color:blue">fgdc2006</span>) are implemented).
+
+<center>
+#### Table 2: Primary lithology
+<table style="border-collapse:collapse; border:none; width:400px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee ">id</th>
+<th colspan=3; style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee ">Lithology</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">claystone</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">13</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">coal</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">mudstone</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">14</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">gypsum</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">shale</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">15</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">halite</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">siltstone</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">16</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">chert</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">sandstone</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">17</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">glauconite</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#f2f2f2; ">6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; background-color:#f2f2f2; ">conglomerate</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#f2f2f2; ">18</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; background-color:#f2f2f2; ">limonite</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">7</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">breccia</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">19</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">siderite</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">8</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">limestone</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">20</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">phosphorite</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">9</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">dolostone</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">21</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">tuff</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">10</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">marl</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">22</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">lapillistone</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">11</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">chalk</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">23</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">agglomerate</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">12</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; background-color:#f2f2f2; ">diatomite</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">24</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; background-color:#f2f2f2; ">bentonite</td>
+</tr>
+</table>
+</center>
+
+*  **grain_size**: string; This field must include only the values listed in **Table 3**.
+   The conventions are based on the Wentworth classification system for siliciclastic rocks (<span style="color:blue">wentworth 1922</span>), for pyroclastic rocks (<span style="color:blue">wentworth 1932</span>), and for classification of carbonate rocks (<span style="color:blue">dunham 1962</span>) are implemented.
+
+<center>
+#### Table 3: Grain size table
+<table style="border-collapse:collapse; border:none; width:440px">
+<tr>
+<td style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           border-bottom:1px solid black; background-color:#b1ebee ">id</td>
+<td colspan=3; style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee ">Grain Size</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">clay</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">22</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">mudstone</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">clay / silt</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">23</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">wackestone</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">silt</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">24</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">packstone</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">silt / very fine sand</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">25</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">grainstone</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">very fine sand</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">26</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">floatstone</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">very fine / fine sand</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">27</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">rudstone</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">7</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">fine sand</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">28</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">boundstone</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">8</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">fine / medium sand</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">29</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">framestone</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">9</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">medium sand</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">30</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">bindstone</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#f2f2f2; ">10</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; background-color:#f2f2f2; ">medium / coarse sand</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#f2f2f2; ">31</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; background-color:#f2f2f2; ">bafflestone</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">11</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">coarse sand</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">32</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">crystalline</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">12</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">coarse / very coarse sand</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">33</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; background-color:#f2f2f2; ">fine ash</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">13</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">very coarse sand</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">34</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">medium ash</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">14</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">very coarse / granule</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">35</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">coarse ash</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">15</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">granule</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">36</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">very coarse ash</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">16</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">granule / pebble</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">37</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">fine lapilli</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">17</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">pebble</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">38</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">medium lapilli</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">18</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">pebble / cobble</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">39</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">coarse lapilli</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">19</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">cobble</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">40</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">fine blocks and bombs</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">20</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">cobble / boulder</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">41</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">coarse blocks and bombs</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; ">21</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; ">boulder</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; "></td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; "></td>
+</tr>
+</table>
+</center>
+
+In summary, a table with the structure presented in **table 4** must be provided. Each row in this data array describes a stratigraphic bed/layer. This example is from a borehole core where depths are measured down from the surface, therefore "base" is greather than "top".
+
+<center>
+#### Table 4: Example of beds/layers table.
+<table style="border-collapse:collapse; border:none; width:540px">
+<tr>
+<th style="border-top: double; color:white; background-color:#1D1D1D; font-style:italic; font-weight:bold; padding:0.2cm; border-bottom:1px solid black; text-align:left; ">bed_number</th>
+<th style="border-top: double; color:white; background-color:#1D1D1D; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; border-bottom:1px solid black; ">base</th>
+<th style="border-top: double; color:white; background-color:#1D1D1D; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; border-bottom:1px solid black; ">top</th>
+<th style="border-top: double; color:white; background-color:#1D1D1D; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; border-bottom:1px solid black; ">rock_type</th>
+<th style="border-top: double; color:white; background-color:#1D1D1D; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; border-bottom:1px solid black; ">prim_litho</th>
+<th style="border-top: double; color:white; background-color:#1D1D1D; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; border-bottom:1px solid black; ">grain_size</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">671</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">670.2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">sedimentary</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#fdfd96; ">claystone</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#fdfd96; ">clay</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">670.2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">669.4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">covered</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; "></td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">669.4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">669.18</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">sedimentary</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#fdfd96; ">sandstone</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#fdfd96; ">medium sand</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">669.18</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">667.6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">sedimentary</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">limestone</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">wackestone</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">667.6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">667.2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">sedimentary</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#fdfd96; ">conglomerate</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#fdfd96; ">boulder</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">667.2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">666.2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">sedimentary</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; background-color:#f2f2f2; ">shale</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; background-color:#f2f2f2; ">silt</td>
+</tr>
+</table>
+</center>
+
+***
+
+We have provided on the [**SDAR repositoy**](https://repository.si.edu/10088/35917) a template of the data format used by SDAR as a 
+Microsoft Excel spreadsheet, ***SDAR_v0.95_beds_template.xlsx***. This is the suggested format by SDAR to store thickness, and texture description of rock layers (beds). 
+
+* The fields *"bed_number", "base", "top", "rock_type", prim_litho" and "grain_size"* must be provided to draw a stratigraphic column on SDAR.
+* The fields *"grading", "grain_size_base", "grain_size_top", "munsell_color" and "Rcolor"* are optional fields, if any of these optional fields
+are provided, SDAR will incorporate it on the graphical output.
+* The fields *"base_contact" and "notes"* are included on the template, but the current version is not able to display it on the graphical output, we are working on making it available in the next version.
+* The fields *"prim_litho_percent", "sec_litho", "grain_size_sec_litho", "sec_litho_percent"* are included on the template in order to store information
+for mixed rocks, current version of SDAR is not able to display patterns for mixed rocks yet, but we encourage user to store it.
+* The fields *"sorting", "roundness", "matrix", "cement" and "fabric"* are included on the template to store texture description of rock layers,
+this information is not display on the graphical output.
+
+***
+
+#### Optional fields
+
+* **grading**: string; This field must include only the values listed in **Table 5**. Grading commonly consists of an upward decrease in grain size (normal grading), however, certain sedimentary process result in an upward increase in grain size (inverse grading). 
+
+<center>
+#### Table 5: Grading
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee ; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+    	   border-bottom:1px solid black; background-color:#b1ebee ;">Grading</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">normal</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">inverse</td>
+</tr>
+</table>
+</center>
+
+* **grain_size_base and grain_size_top**: string; These fields must include only the values listed in **Table 3**. When grading is normal or
+inverse, the grain size of the base and top must be provided.
+
+* **munsell_color**: string; This field must include only the values listed in **Table 6**. It uses color description based on the Munsell
+ chart codes from the Geological Society of America Rock Color Chart (<span style="color:blue">Committee 1991</span>).
+
+<center>
+#### Table 6: Munsell Colors
+<table style="border-collapse:collapse; border:none; width:440px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; border-bottom:1px solid black;
+           background-color:#b1ebee; ">id</th>
+<th colspan=7; style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; border-bottom:1px solid black;
+           background-color:#b1ebee; ">Munsell Color</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#D8C6C4; ">5R 8/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">30</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#EFC382; ">10YR 8/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">59</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#3E4C3F; ">10GY 3/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">88</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#DCE8E6; ">5B 9/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">2</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#D1A5A1; ">5R 7/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">31</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#C9AB81; ">10YR 7/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">60</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#9BB6A7; ">5G 7/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">89</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#C0CEC4; ">5G 8/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#A6908F; ">5R 6/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">32</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#A3937E; ">10YR 6/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">61</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#87BBA0; ">5G 7/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">90</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#C9CCBA; ">5GY 8/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">4</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#C68480; ">5R 6/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">33</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#B88E51; ">10YR 6/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">62</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#55A480; ">5G 6/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">91</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#D2CDBD; ">5Y 8/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">5</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#9D6F6D; ">5R 5/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">34</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#947650; ">10YR 5/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">63</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#6A8074; ">5G 5/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">92</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#D5C8BE; ">5YR 8/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">6</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#745B5A; ">5R 4/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">35</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#6F5F4C; ">10YR 4/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">64</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#3B8968; ">5G 5/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">93</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#A8B5B4; ">5B 7/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">7</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#904E4D; ">5R 4/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">36</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#3D2F21; ">10YR 2/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">65</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#3A4D44; ">5G 3/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">94</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#9B908A; ">5YR 6/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">8</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#6A3B3C; ">5R 3/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">37</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#D9CA93; ">5Y 8/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">66</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#B2D1C6; ">10G 8/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">95</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#979386; ">5Y 6/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">9</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#422C2E; ">5R 2/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">38</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#B8AF94; ">5Y 7/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">67</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#809B92; ">10G 6/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">96</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#8B968D; ">5G 6/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">10</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#581D28; ">5R 2/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">39</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#C4AF5F; ">5Y 7/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">68</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#4F665F; ">10G 4/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">97</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#95978A; ">5GY 6/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">11</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#DAC6C0; ">10R 8/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">40</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#A49562; ">5Y 6/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">69</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#98B6B1; ">5BG 7/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">98</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#6E787A; ">5B 5/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">12</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#D3A597; ">10R 7/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">41</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#837B62; ">5Y 5/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">70</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#40A49C; ">5BG 6/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">99</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#59665C; ">5G 4/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">13</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#A7908A; ">10R 6/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">42</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#90792C; ">5Y 5/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">71</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#66807D; ">5BG 5/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">100</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#5C6154; ">5GY 4/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">14</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#C68570; ">10R 6/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">43</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#706031; ">5Y 4/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">72</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#2F6B67; ">5BG 4/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">101</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#645F55; ">5Y 4/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">15</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#9D7064; ">10R 5/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">44</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#504834; ">5Y 3/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">73</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#364D4B; ">5BG 3/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">102</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#695E57; ">5YR 4/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">16</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#745C56; ">10R 4/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">45</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#CECCAC; ">10Y 8/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">74</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#B8CED3; ">5B 8/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">103</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#2B332D; ">5G 2/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">17</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#90503F; ">10R 4/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">46</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#B5B279; ">10Y 7/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">75</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#69BBCF; ">5B 7/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">104</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#30332D; ">5GY 2/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">18</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#693C34; ">10R 3/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">47</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#98977B; ">10Y 6/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">76</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#83999F; ">5B 6/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">105</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#332F2A; ">5Y 2/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">19</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#422C2A; ">10R 2/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">48</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#9C9944; ">10Y 6/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">77</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#2E859C; ">5B 5/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">106</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#3B312E; ">5YR 2/1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">20</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#ECC2A4; ">5YR 8/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">49</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#807D49; ">10Y 5/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">78</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#A9B0BB; ">5PB 7/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">107</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#E5E5E5; ">N9</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">21</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#C1AB9E; ">5YR 7/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">50</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#62634B; ">10Y 4/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">79</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#757B88; ">5PB 5/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">108</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#CACACA; ">N8</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">22</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#B58D72; ">5YR 6/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">51</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#ACB396; ">5GY 7/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">80</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#414958; ">5PB 3/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">109</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#AFAFAF; ">N7</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">23</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#8C776A; ">5YR 5/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">52</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#A8B680; ">5GY 7/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">81</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#9A929F; ">5P 6/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">110</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#959595; ">N6</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">24</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#A66E46; ">5YR 5/6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">53</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#777E67; ">5GY 5/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">82</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#685E6D; ">5P 4/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">111</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#7B7B7B; ">N5</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">25</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#805840; ">5YR 4/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">54</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#454B39; ">5GY 3/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">83</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#382E3D; ">5P 2/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">112</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#616161; ">N4</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">26</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#594439; ">5YR 3/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">55</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#A1B59F; ">10GY 7/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">84</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#D5C7CB; ">5RP 8/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">113</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#484848; ">N3</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">27</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#65402B; ">5YR 3/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">56</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#7B9E77; ">10GY 6/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">85</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#A29096; ">5RP 6/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">114</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#313131; ">N2</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">28</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#402D25; ">5YR 2/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">57</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#6F806E; ">10GY 5/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">86</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#715C63; ">5RP 4/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">115</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#1D1D1D; ">N1</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">29</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#D8C8B1; ">10YR 8/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">58</td>
+<td style=" padding:0.2cm; font-weight: bold; vertical-align:top; text-align:center; background-color:#496948; ">10GY 4/4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">87</td>
+<td style=" padding:0.2cm; color:white; font-weight: bold; vertical-align:top; text-align:center; background-color:#402C36; ">5RP 2/2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; "></td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; "></td>
+</tr>
+</table>
+</center>
+
+* **Rcolor**: string; Any color name valid in R format (***colors*** function from *grDevices* package provide a complete list of colors available in R). Instead of using a color name, color can also be defined with a hexadecimal value. Examples are provided on **Table 7**
+
+<center>
+#### Table 7: Examples of R colors
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           border-bottom:1px solid black; background-color:#b1ebee; ">Rcolor</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee; ">example</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">goldenrod</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#EEB422; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">seagreen</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#43CD80; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">deepskyblue</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#00BFFF; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">#8968CD</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#8968CD; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; ">#E9967A</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; background-color:#E9967A; "></td>
+</tr>
+</table>
+</center>
+
+* **base_contact**: string; This field must include only the values listed in **Table 8**. The nature of the boundary at the base of the layer.
+Base contact is included on the template, but the current version is not able to display it on the graphical output, we are working on making it available in the next version.
+
+<center>
+#### Table 8: Base contact
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee ; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+    	   border-bottom:1px solid black; background-color:#b1ebee ;">Base contact</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">sharp planar</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">gradational</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">faulted</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; border-bottom: double; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; border-bottom: double; ">covered</td>
+</tr>
+</table>
+</center>
+
+* **notes**: string; Additional description in a free text format, maximum 200 characters by bed (’Comments/Remarks’). Notes is included on the template, but the current version is not able to display it on the graphical output, we are working on making it available in the next version.
+
+#### Mixed rocks
+
+*  **sec_litho**: string; Secondary lithology, this field must include only the values listed in **Table 2**.
+*  **grain_size_sec_litho**: string; Grain size of secondary lithology, this field must include only the values listed in **Table 3**.
+*  **prim_litho_percent** and **sec_litho_percent**: numeric; Percent composition of primary and secondary lithology.
+* **Note**: The fields "prim_litho_percent", "sec_litho", "grain_size_sec_litho", "sec_litho_percent"* are included on the template in order to store information for mixed rocks, current version of SDAR is not able to display patterns for mixed rocks yet, but we encourage user to store it.
+
+#### Texture description
+
+* **sorting**: string; This field must include only the values listed in **Table 9**. Description of the degree of uniformity of grain size.
+
+<center>
+#### Table 9: Sorting
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee ; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+    	   border-bottom:1px solid black; background-color:#b1ebee ;">Sorting</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">very well sorted</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">well sorted</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">moderately sorted</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">poorly sorted</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; ">very poorly sorted</td>
+</tr>
+</table>
+</center>
+
+* **roundness**: string; This field must include only the values listed in **Table 10**. Measurement of roundness of sedimentary particles (<span style="color:blue">Krumbein 1941</span>).
+
+<center>
+#### Table 10: Roundness
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee ; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+    	   border-bottom:1px solid black; background-color:#b1ebee ;">Roudness</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">very angular</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">angular</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">sub angular</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">sub rounded</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">rounded</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; border-bottom: double; ">6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; border-bottom: double; ">well rounded</td>
+</tr>
+</table>
+</center>
+
+* **matrix**: string; This field must include only the values listed in **Table 11**. Composition of material wherein larger grains, crystals
+ or clasts are embedded.
+
+<center>
+#### Table 11: Matrix
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee ; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+    	   border-bottom:1px solid black; background-color:#b1ebee ;">Matrix</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">muddy</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">sandy</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">ashy</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">micrite</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; ">not recognizable</td>
+</tr>
+</table>
+</center>
+
+* **cement**: string; This field must include only the values listed in **Table 12**. Composition of the crystalline material precipitated around
+ the edges of grains.
+
+<center>
+#### Table 12: Cement
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee ; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+    	   border-bottom:1px solid black; background-color:#b1ebee ;">Cement</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">siliceous</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">ferruginous</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">calcite</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">dolomite</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">kaolinitic</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">sparite</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; ">7</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; ">not recognizable</td>
+</tr>
+</table>
+</center>
+
+* **fabric**: string; This field must include only the values listed in **Table 13**. Grain fabric (packing).
+
+<center>
+#### Table 13: Fabric
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           border-bottom:1px solid black; background-color:#b1ebee ; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+    	   border-bottom:1px solid black; background-color:#b1ebee ;">Fabric</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">clast supported</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; background-color:#f2f2f2; ">matrix supported</td>
+</tr>
+</table>
+</center>
+
+**Note**: The fields "sorting", "roundness", "matrix", "cement" and "fabric"* are included on the template to store texture description of rock layers, this information is not display on the graphical output.
+&nbsp;
+
+### Interval features
+
+An interval is defined over a stratigraphic range; it has to be defined by a base and a top. The main requirement to set an interval is that the recorded geological feature (e.g., sedimentary structures, bioturbation, unit name, fossil content) is presented throughout the defined stratigraphic range. 
+Furthermore, users can define an interval by the stratigraphic thickness contained into a given bed. For example; if bioturbation is present just in the top of the bed, users could define the base and top of the bioturbed interval and store it in this format. Following this approach users can store in this format the following features:
+
+* core number
+* samples
+* visual oil stain
+* bioturbation
+* sedimentary structures
+* fossils
+* other symbols
+* lithostratigraphic frame
+* chronostratigraphic frame
+
+In the data structure to define intervals, the user must define a stratigraphical base, top, and the recorded feature of each interval as is presented in **Table 14**. Each row in this data array describes a stratigraphic interval with the geological feature described on it. In some interval features overlapping is allowed (e.g., fossils, samples).
+
+<center>
+#### Table 14: Example of intervals table (sedimentary structures).
+<table style="border-collapse:collapse; border:none; width:440px">
+<tr>
+<th style="border-top: double; color:white; background-color:#1D1D1D; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; border-bottom:1px solid black; ">base</th>
+<th style="border-top: double; color:white; background-color:#1D1D1D; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; border-bottom:1px solid black; ">top</th>
+<th style="border-top: double; color:white; background-color:#1D1D1D; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; border-bottom:1px solid black; ">sed_structure</th>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">671</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">670.2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">cross bedding</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">671.5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">671.5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">climbing ripples</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">669.4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">669.18</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#fdfd96; ">lenticular lamination</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">668.2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">667.6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">normal grading</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">667.2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">666.2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">wavy lamination</td>
+</tr>
+</table>
+</center>
+
+We have provided on the SDAR repositoy a template of intervals data format used by SDAR as a Microsoft Excel spreadsheet, ***SDAR_v0.95_intervals_template.xlsx***. This is the suggested format by SDAR to store fossils, sedimentary structures, bioturbation, etc. (intervals).
+
+In summary, a table with the structure presented in **table 14** must be provided for each recorder feature. The possible values admitted by each geological feature are presented in **tables 15-22**. The names of the columns must to be called as is presented in each reference table.
+
+* **samples**: string; This field must include only the values listed in **Table 15**. 
+
+<center>
+#### Table 15: Samples
+<table style="border-collapse:collapse; border:none; width:300px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">Sample Type</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">Default symbol - pch</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">Default color</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">rock sample</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">15</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#D2691E; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">fossil sample</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">16</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#008B45; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">foraminifera</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">17</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#009ACD; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">geochemistry</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">18</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#6959CD; "></td>
+</tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">palynology</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">8</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#00008B; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">petrography</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">9</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#CD4F39; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">7</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">petrophysics</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">7</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#000000; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; border-bottom: double; ">8</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; border-bottom: double; ">XRD</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; border-bottom: double; ">11</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; border-bottom: double; background-color:#FF4500; "></td>
+</tr>
+</table>
+</center>
+
+* **oil.stain**: string; This field must include only the values listed in **Table 16**. 
+
+<center>
+#### Table 16: Visual Oil Stain
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           background-color:#edde8b; border-bottom:1px solid black; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">Intensity</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">color</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">weak</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#F0F0F0; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">moderate weak</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#B5B5B5; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">moderate</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#7F7F7F; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">moderate strong</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#424242; "></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; ">strong</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; background-color:#000000; "></td>
+</tr>
+</table>
+</center>
+
+* **bioturbation**: string; This field must include only the values listed in **Table 17**. 
+
+<center>
+#### Table 17: Bioturbation
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm; 
+           background-color:#edde8b; border-bottom:1px solid black; ">Index</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">sparse</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">low</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">moderate</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">high</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">intense</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; border-bottom: double; ">6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; border-bottom: double; ">complete</td>
+</tr>
+</table>
+</center>
+
+* **sed.structures**: string; This field must include only the values listed in **Table 18**. 
+
+<center>
+#### Table 18: Sedimentary Structures
+<table style="border-collapse:collapse; border:none; width:440px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">id</th>
+<th colspan=3; style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">Sedimentary Structures</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">masive</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">21</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">ball and pillow</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">planar lamination</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">22</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">convolute bedding</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">horizontal bedding</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">23</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">dish and pillar</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">normal grading</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">24</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">evaporite molds</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">inverse grading</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">25</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">flame structures</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">cross bedding</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">26</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">flute casts</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">7</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">festoon cross bedding</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">27</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">groove cast</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">8</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">herringbone cross bedding</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">28</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">hardground</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">9</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">hummocky cross bedding</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">29</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">load cast</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#f2f2f2; ">10</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; background-color:#f2f2f2; ">planar cross bedding</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#f2f2f2; ">30</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; background-color:#f2f2f2; ">mudcrack</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">11</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">through cross bedding</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">31</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">pseudo nodules</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">12</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">swaley cross bedding</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">32</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">tool marks</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">13</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">ripple lamination</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">33</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">rain prints</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">14</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">climbing ripples</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">34</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">slump structures</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">15</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">current ripple cross lamination</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">35</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">syneresis cracks</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">16</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">wave ripple cross lamination</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">36</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">mottling</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">17</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">flaser lamination</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">37</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">peds</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">18</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">heterolithic lamination</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">38</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">rooting</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">19</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">lenticular lamination</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">39</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">slickensides</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">20</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; background-color:#f2f2f2; ">wavy lamination</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; "></td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; background-color:#f2f2f2; "></td>
+</tr>
+</table>
+</center>
+
+* **fossils**: string; This field must include only the values listed in **Table 19**. 
+
+<center>
+#### Table 19: Fossils
+<table style="border-collapse:collapse; border:none; width:440px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">id</th>
+<th colspan= 3; style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">Fossils</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">macrofossils</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">30</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">reptiles</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">invertebrates</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">31</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">plants</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">annelids</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">32</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">leaves</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">arthropods</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">33</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">roots</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">arachnids</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">34</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">wood</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">crustaceans</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">35</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">algae</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">7</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">insects</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">36</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">conifers</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">8</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">trilobites</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">37</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">ferns</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">9</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">brachiopods</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">38</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">flowering plants</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#f2f2f2; ">10</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; background-color:#f2f2f2; ">bryozoans</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#f2f2f2; ">39</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; background-color:#f2f2f2; ">stromatolites</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">11</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">cnidarians</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">40</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">fungi</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">12</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">corals</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">41</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">microfossils</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">13</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">stromatoporoids</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">42</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">conodontss</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">14</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">echinoderms</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">43</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">diatoms</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">15</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">crinoids</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">44</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">foraminifera</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">16</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">echinoids</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">45</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">larger foraminifera</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">17</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">graptolites</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">46</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">benthonic foraminifera</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">18</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">mollusks</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">47</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">planktonic foraminifera</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">19</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">cephalopods</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">48</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">nannofossils</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#f2f2f2; ">20</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; background-color:#f2f2f2; ">ammonoids</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; background-color:#f2f2f2; ">49</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; background-color:#f2f2f2; ">ostracodes</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">21</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">belemnoids</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">50</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">palynomorphs</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">22</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">nautiloid</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">51</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">acritarchs</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">23</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">gastropods</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">52</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">chitinozoans</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">24</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">bivalves</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">53</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">dinoflagellates</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">25</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">sponges</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom:1px solid black; ">54</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom:1px solid black; ">pollen spores</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">26</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">vertebrates</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">55</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">radiolarians</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">27</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">amphibians</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">56</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">silicoflagellates</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">28</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">fish</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">57</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">spicules</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; ">29</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; ">mammals</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; "></td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; "></td>
+</tr>
+</table>
+</center>
+
+* **other.sym**: string; This field must include only the values listed in **Table 20**. 
+
+<center>
+#### Table 20: other symbols
+<table style="border-collapse:collapse; border:none; width:400px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">id</th>
+<th colspan=3; style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">Other Symbols</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">concretions</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">9</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">kaolinite</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">nodules</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">10</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">mica</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">intraclasts</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">11</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">olivine</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">stylolites</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">12</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">organic matter</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">calcite</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">13</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">pyrite</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">feldspar</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">14</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">pyroxene</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">7</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">glauconite</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">15</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">siderite</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">8</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; background-color:#f2f2f2; ">gypsum</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; background-color:#f2f2f2; ">16</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; background-color:#f2f2f2; ">sulphur</td>
+</tr>
+</table>
+</center>
+
+* **lithostrat**: string; This field must include only the values listed in **Table 21**. 
+
+<center>
+#### Table 21: Lithostratigraphic Ranks
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">Litho Unit Rank</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">group</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">formation</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; ">member</td>
+</tr>
+</table>
+</center>
+
+* **chronostrat**: string; This field must include only the values listed in **Table 22**. 
+
+<center>
+#### Table 22: Chronostratigraphic Units
+<table style="border-collapse:collapse; border:none; width:200px">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">id</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:bold; padding:0.2cm;
+           background-color:#edde8b; border-bottom:1px solid black; ">Chrono Unit</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">1</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">super_eonothem</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">2</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">eonothem</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">3</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">erathem</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">4</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">system</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; ">5</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; ">series</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; background-color:#f2f2f2; ">6</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; background-color:#f2f2f2; ">series_subseries</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; vertical-align:top; text-align:center; border-bottom: double; ">7</td>
+<td style=" padding:0.2cm; vertical-align:top; text-align:left; border-bottom: double; ">stage</td>
+</tr>
+</table>
+</center>
+
+#### Acknowledgments
+
+>This project has been sponsored by Carlos Jaramillo (Smithsonian Tropical Research Institute), 
+financial support of this research was provided by COLCIENCIAS (partly funding the master studies of the
+main author) fundación para la Investigación de la Ciencia y la Tecnológia del Banco de la República,
+(Colombia), Corporación Geológica ARES (Colombia), and the Smithsonian Tropical Research Institute, 
+the Anders Foundation, 1923 Fund and Gregory D. and Jennifer Walston Johnson.
+
+>The Saltarin 1A well dataset for this analysis, was provided by Alejandro Mora of **HOCOL S.A.**
+
+
+### Bibliography
+
+* Committee, F. G. D. (2006). Fgdc digital cartographic standard for geologic map symbolization.
+
+* Committee, R.-C. C. (1991). The Geological Society of America Rock Color Chart
+with Genuine Munsell Color Chips. Geological Society of America.
+
+* Dunham, R. (1962). American association of petroleum geologists memoir. *Classification of carbonate rocks according
+to depositional texture. In Ham, W.E. Classification of carbonate rocks*, 1:108-121.
+
+* Johnson, M. R. (1992). A proposed format for general-purpose comprehensive 
+graphic logs. *Sedimentary Geology*, 81(3-4):289-298.
+
+* Krumbein, W. C. 1941.The effects of abrasion on the size, shape and roundness of rock fragments.
+The Journal of Geology 49(5), 482-520.
+
+* Miall, A. D. (1990). *Principles of Sedimentary Basin Analysis*. Springer-Verlag.
+
+* R Core Team (2014). R: *A Language and Environment for Statistical Computing*.
+R Foundation for Statistical Computing, Vienna, Austria.
+
+* Tucker, M. E. (2011). *Sedimentary Rocks in the Field: A Practical Guide. Geological Field Guide*. Wiley.
+
+* Wentworth, C. K. (1922). A scale of grade and class terms for clastic sediments. 
+*Journal of Geology*, 30:377-392.
+
+* Wentworth, C. K. and Williams, H. (1932). Classification and terminology of 
+pyroclastic rocks. *National Research Council Bulletin*, 89:19-53.

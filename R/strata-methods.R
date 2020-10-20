@@ -12,13 +12,13 @@ strata <- function(x, datum = "top") {
       "Column names (", paste0(rqd_names[ind_names == FALSE], 
       collapse=", "), ") are missing. Check column names"), sep="")
   }
-  if(!all(lapply(x[c("bed_number", "base", "top")], class) == "numeric")) {
+  if(!all(lapply(x[c("bed_number", "base", "top")], class) %in% c("numeric", "integer"))) {
     stop(call.=FALSE, "Columns (bed_number, base and top) should be numeric type")
   }
   ## check if base and top are equal
   if(any(x$base == x$top)) {
     stop(call.=FALSE, paste0("Check thickness 'base-top' in bed numbers (", 
-      paste0(head(x[(x$base == x$top) == TRUE, "bed_number"], 7), 
+      paste0(head(x[(x$base == x$top) == TRUE, "bed_number"], 5), 
         collapse=", "), ") 'base and top can not be equal'"))
   }
   if(is.null(datum)) {
@@ -27,12 +27,12 @@ strata <- function(x, datum = "top") {
   if(datum == "base") {
   	if(any(x$base > x$top)) {
   	  stop(call.=FALSE, paste0("Check thickness 'base-top' in bed numbers (", 
-  	    paste0(head(x[(x$base < x$top) == FALSE, "bed_number"], 7), collapse=", "), ") 'top should be greather than base'"))
+  	    paste0(head(x[(x$base < x$top) == FALSE, "bed_number"], 5), collapse=", "), ") 'top should be greather than base'"))
   	}
   }else{  # SDAR will deal negative values of depth  
     if(any(x$base < x$top)) {
   	  stop(call.=FALSE, paste0("Check thickness 'base-top' in bed numbers (", 
-  	    paste0(head(x[(x$base > x$top) == FALSE, "bed_number"], 7), collapse=", "), ") 'base should be greather than top'"))
+  	    paste0(head(x[(x$base > x$top) == FALSE, "bed_number"], 5), collapse=", "), ") 'base should be greather than top to draw a well, or set (datum = base) to draw an outcrop section'"))
   	}
   	x[, c("base", "top")] <- x[, c("base", "top")] * -1
   }
@@ -86,6 +86,8 @@ strata <- function(x, datum = "top") {
   x <- cnv_to_id(x, "rock_type", rock.table)
   x <- cnv_to_id(x, "prim_litho", litho.table)
   x <- cnv_to_id(x, "grain_size", gs.table)
+  x[which(x$id_prim_litho == 25), "id_grain_size"] <- 15  # when prim_litho = granite (grain_size = 15)
+  x[which(x$id_prim_litho == 25), "grain_size"] <- "granule"
   # transform to strata class
   message("   'beds data has been validated successfully'")
   new("strata", x)

@@ -42,7 +42,7 @@ input.check <- function(x, col.na, table.na) {
 int.event <- function(x, datum, subset.lim, arg){
   if(datum == "top") {  
     if(any(x$base < x$top)) {
-      notIn <- which(x$base > x$top)
+      notIn <- which(x$base < x$top)
       stop(call.=FALSE, paste(c(arg, "as datum='top', base must be greather than top, Check rows number: ", 
            head(notIn)), collapse=", "))
     }
@@ -104,6 +104,18 @@ round_up <- function(x, to=10) {
 draw.header.litho <- function(poscol, posrow) {
   pushViewport(viewport(layout.pos.col=poscol, 
     layout.pos.row=posrow, name="grainSizeHeader"))
+      grid.rect(x=0, y=0.37, width=0.96, 
+        height=0.17, just=c("left", "bottom"), 
+        default.units = 'native', 
+        gp=gpar(lwd=0.01, fill="yellow1", alpha=0.2))
+      grid.rect(x=0, y=0.54, width=0.96, 
+        height=0.22, just=c("left", "bottom"), 
+        default.units = 'native',
+        gp=gpar(lwd=0.01, fill="cadetblue1", alpha=0.2))
+      grid.rect(x=0, y=0.76, width=0.96, 
+        height=0.24, just=c("left", "bottom"), 
+        default.units = 'native',
+        gp=gpar(lwd=0.01, fill="grey80", alpha=0.2))
       hL <- headerLines; hT <- headerText
     for(i in seq_along(seq_along(hL$x0))) {
       grid.polyline(x=c(hL$x0[i], hL$x1[i]), 
@@ -136,3 +148,63 @@ draw.cover  <- function(sp.base, sp.top, x_axis){
 ndec <-function(x) {
   min(which( x*10^(0:10) == floor(x*10^(0:10)) )) - 1
 }
+# First letter to upper case
+firstup <- function(x) {
+   substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+ x
+}
+## function to validate the length of a string, it's in order to fix it in the available space
+validate.strings <- function(x, availHeight, pos.string) {
+  len.str <- convertWidth(stringWidth(x), "cm", 
+      valueOnly=TRUE)
+  if(len.str < availHeight) {
+    grid.text(firstup(x), x=unit(0.5, "native"), 
+        y=unit(pos.string, "native"),
+        rot=90)
+  }else{
+    if((len.str/1.33) < availHeight) {
+    grid.text(firstup(x), x=unit(0.5, "native"), 
+        y=unit(pos.string, "native"),
+        rot=90, gp=gpar(cex=0.75))
+      }else{
+  grid.text("*",x=unit(0.5, "native"), 
+    y=unit(pos.string, "native"),
+    just="right")
+    warning(paste("* The formation name (", x,
+    ") is very long and can not be drawn", sep=""), call.=FALSE)
+      }
+  }
+}
+## Validate and draw text in "geological time scale" and "lithostratigraphic" frames.
+draw.text.colum <- function(sub.table, subX, subWidth, sc.fac) {
+  for(i in 1:nrow(sub.table)) {
+    pushViewport(viewport(x=subX, y=sub.table$from[i],
+  width=subWidth, 
+  height=sub.table$to[i] - sub.table$from[i],
+  xscale= c(0, 1),
+  yscale=c(sub.table$from[i], sub.table$to[i]),
+  gp= gpar(font=2, cex=1.2),
+  just=c("left", "bottom"), default.units = 'native'))   ##  Define viewports included into the main viewport of GTS.
+      grid.rect(gp=gpar(lwd=0.25, fill = sub.table$color[i]))
+      validate.strings(sub.table[i,"name"], 
+     abs(sub.table$to[i] - 
+           sub.table$from[i]) / sc.fac, 
+     (sub.table$from[i] + 
+     sub.table$to[i]) / 2) 
+    upViewport()
+  }
+}
+ ##
+  f.order <- function(x, atr.name, plot.order) {
+   if(!is.null(x) & !is.null(plot.order) & !deparse(substitute(x)) %in% plot.order){
+     stop(call.=FALSE, paste("order of '", atr.name,
+       "', must to be included in 'plot.order' argument", sep=""))
+     }
+  }
+ ##
+  fb.order <- function(x, atr.name, plot.order) {
+    if(isTRUE(x) & !is.null(plot.order) & !deparse(substitute(x)) %in% plot.order){
+     stop(call.=FALSE, paste("order of '", atr.name,
+       "', must to be included in 'plot.order' argument", sep=""))
+     }
+  } 
