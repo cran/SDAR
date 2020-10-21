@@ -1,7 +1,7 @@
 Package: SDAR
 Title: Stratigraphic Data Analysis
-Version: 0.9-5
-Date: 2020-10-17
+Version: 0.9-55
+Date: 2020-10-20
 Authors@R: c(person("John R.", "Ortiz", role = c("aut", "cre"), email = "jrortizt@unal.edu.co"),
 				person("Carlos", "Jaramillo", role = "aut"),
         person("Carlos", "Moreno", role = "ctb"))
@@ -14,7 +14,7 @@ Description: A fast, consistent tool for plotting and facilitating the analysis 
     lithology, samples, sedimentary structures, colors, fossil content, bioturbation index, 
     gamma ray logs) (Johnson, 1992, <ISSN 0037-0738>).
 License: GPL (>= 2)
-URL: https://repository.si.edu/10088/35917
+URL: https://doi.org/10.25573/data.13118426.v2
 Imports: methods, grid, linbin, grImport2, readxl
 Repository: CRAN
 Author: John R. Ortiz [aut, cre],
@@ -26,5 +26,5 @@ Note: The development of this package was supported by Carlos
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2020-10-20 05:22:47 UTC; john
-Date/Publication: 2020-10-20 07:20:02 UTC
+Packaged: 2020-10-20 23:05:54 UTC; john
+Date/Publication: 2020-10-21 20:40:03 UTC

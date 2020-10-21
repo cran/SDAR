@@ -213,7 +213,7 @@ vignette("SDAR_data_model")
 *****
 #### Getting your own data into R
 
-We have provided on the [**SDAR repository**](https://repository.si.edu/10088/35917) a template of the
+We have provided on the [**SDAR repository**](https://doi.org/10.25573/data.13118426.v2) a template of the
 data format used by SDAR as a Microsoft Excel spreadsheet, ***SDAR_v0.95_beds_template.xlsx***. This is
 the suggested format by SDAR to store thickness, composition and texture description of rock layers (beds).
 The data for each bed should be presented as a row, with columns for each of the parameters entered
@@ -587,7 +587,7 @@ SDAR, check SDAR_data_model vignette)**. The interval features available to inte
 
 <p><br></p>
 
-We have provided on the [**SDAR repository**](https://repository.si.edu/10088/35917) a template of the
+We have provided on the [**SDAR repository**](https://doi.org/10.25573/data.13118426.v2) a template of the
 data format used by SDAR as a Microsoft Excel spreadsheet, ***SDAR_v0.95_intervals_template.xlsx***. This is
 the suggested format by SDAR to store interval information (e.g., bioturbation, sedimentary structures, and so on).
 

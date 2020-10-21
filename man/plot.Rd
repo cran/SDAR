@@ -94,7 +94,7 @@ to get more details about the specific types of data required by SDAR, check "SD
 The SDAR project includes the development of a graphic user interface to connect this R package
 with a database management system; for this reason the structure of the data and headers
 (column names) should be followed in order to match the database structure.\cr
-On the \href{https://repository.si.edu/handle/10088/35917}{SDAR repository} there are two excel spreadsheet with the suggested format by SDAR, one to store thickness, and texture description of rock layers \emph{SDAR_v0.95_beds_template.xlsx}, and other \emph{SDAR_v0.95_intervals_template.xlsx} to store "intervals information" (e.g., metadata, samples, oil stain, bioturbation, sedimentary structures, fossil content).\cr
+On the \href{https://doi.org/10.25573/data.13118426.v2}{SDAR repository} there are two excel spreadsheet with the suggested format by SDAR, one to store thickness, and texture description of rock layers \emph{SDAR_v0.95_beds_template.xlsx}, and other \emph{SDAR_v0.95_intervals_template.xlsx} to store "intervals information" (e.g., metadata, samples, oil stain, bioturbation, sedimentary structures, fossil content).\cr
 If you see problems with the PDF output, remember that the problem is much more likely to be in your viewer
 than in R. Try another viewer if possible, browsers as Mozilla Firefox and Google Chrome provide an excellent
 rendering engine for PDF files.

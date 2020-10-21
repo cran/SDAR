@@ -371,7 +371,7 @@ In summary, a table with the structure presented in **table 4** must be provided
 
 ***
 
-We have provided on the [**SDAR repositoy**](https://repository.si.edu/10088/35917) a template of the data format used by SDAR as a 
+We have provided on the [**SDAR repositoy**](https://doi.org/10.25573/data.13118426.v2) a template of the data format used by SDAR as a 
 Microsoft Excel spreadsheet, ***SDAR_v0.95_beds_template.xlsx***. This is the suggested format by SDAR to store thickness, and texture description of rock layers (beds). 
 
 * The fields *"bed_number", "base", "top", "rock_type", prim_litho" and "grain_size"* must be provided to draw a stratigraphic column on SDAR.
